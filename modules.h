@@ -90,7 +90,7 @@ paintLine(int red,
     @param selected refers to what index the cursor is currently at
 */
 void
-displayOption(string10 options,
+displayOption(string20 options,
               int index,
               int selected)
 {
@@ -120,4 +120,35 @@ displayHeader()
     printf("/    \\ )   /( (__ ) __ ( )( \\ \\/ / ) _)   (  O )) _)   (  O )) \\/ ( )   /   )   / ) _)( (__  )(  ) __/ ) _) \\___ \\\n");
     printf("\\_/\\_/(__\\_) \\___)\\_)(_/(__) \\__/ (____)   \\__/(__)     \\__/ \\____/(__\\_)  (__\\_)(____)\\___)(__)(__)  (____)(____/\n");
     //printf("\33[0m\33[2J\33[H");
+}
+
+
+/*
+    This function prints a divider on the screen. The character is based on the passed character.
+    Preconditions:
+        1. ch is a character that exist in the normal ASCII table
+
+    @param ch the character to be continuously printed
+*/
+void
+printLine(char ch)
+{
+    int i;
+    for (i = 0; i < MAX_SCREEN_CHAR / 8; i++)
+        printf("%c%c%c%c%c%c%c%c", ch, ch, ch, ch, ch, ch, ch, ch);
+    printf("%c\n", ch, ch);
+}
+
+
+/*
+    This function prints the ANSI escape code for moving the cursor to the next line
+    Preconditions:
+        1. x is a positive integer
+
+    @param x where to place the cursor on the screen
+*/
+void
+nextLine(int x)
+{
+    printf("\33[1E\33[%dG", x);
 }

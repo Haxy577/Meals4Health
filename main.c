@@ -10,7 +10,7 @@ Richmond Jase Von M. Salvador, DLSU ID# 12506338
                     generate a shopping list, and to recommend menu.
 	Programmed by: Richmond Jase Von M. Salvador  S15A
 	Last Modified: February 12, 2026
-	Version: 1.1
+	Version: 1.2
 	Acknowledgements:	
 						https://github.com/Haxy577/Meals4Health.git -> repository of the project
                         https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797 -> ANSI escape codes
@@ -24,17 +24,29 @@ Richmond Jase Von M. Salvador, DLSU ID# 12506338
 int
 main()
 {
-    clearScreen();
+    //clearScreen();
     displayHeader();
     int i;
+    struct recipe book[50];
 
-    for (i = 0; i < MAX_SCREEN_CHAR; i++)
-        printf("=");
-    printf("\n");
-    for (i = 1; i <= 20; i++)
+    for (i = 0; i < 50; i++)
     {
-        printf("ingredient %d\n", i);
+        strcpy(book[i].foodItems->item, "ingredient");
     }
+
+    printLine('-');
+    printf("Name\n");
+    printf("class\n");
+    printf("servings\n");
+    printf("total calories\n");
+    printf("\nIngredients:\n");
+    for (i = 1; i <= 20; i++)
+        printf("ingredients\n");
+    printf("\nIngredients:\n");
+    for (i = 1; i <= 15; i++)
+        printf("instructions\n");
+    printf("\33[s\33[6;0H");
+    printf("tes\33[u");
     
     return 0;
 }
