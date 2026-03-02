@@ -13,7 +13,8 @@
 *                         Constants Declarations                         *
 *************************************************************************/
 
-#define MAX_SCREEN_CHAR 209
+#define MAX_SCREEN_LENGTH 209
+#define MAX_SCREEN_HEIGHT 54
 #define MAX_RECIPE_INGREDIENTS 20
 #define MAX_RECIPES 50
 #define MAX_INGREDIENTS 50
@@ -33,14 +34,14 @@ typedef char string70[71];
 
 
 /*************************************************************************
-*                         Structure Declarations                         *
+*                        Enumeration Declarations                        *
 *************************************************************************/
 
 typedef enum
 {
     VIEWER,
     ADMIN
-} userType;
+} userClass;
 
 
 typedef enum
@@ -51,7 +52,18 @@ typedef enum
 } recipeClass;
 
 
-//add documentation
+typedef enum
+{
+    INCREASING,
+    DECREASING
+} sortType;
+
+
+
+/*************************************************************************
+*                         Structure Declarations                         *
+*************************************************************************/
+
 typedef struct
 {
     string20    item;
@@ -88,12 +100,12 @@ typedef calorieType calorieList[MAX_INGREDIENTS];
 
 
 
-struct user
+typedef struct
 {
     string20    username;
     string20    password;
-    userType    type;
-};
+    userClass   type;
+} userType;
 
 
 
@@ -108,7 +120,7 @@ struct user
 *                           Display Functions                            *
 *************************************************************************/
 
-void clearScreen();
+void nextScreen();
 void goToXY(int x, int y);
 void paintText(int modifier, int red, int green, int blue);
 void paintLine(int red, int green, int blue);

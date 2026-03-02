@@ -20,33 +20,49 @@ Richmond Jase Von M. Salvador, DLSU ID# 12506338
 
 #include "modules.h"
 
+void getFullscreenDimensions() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+    if (GetConsoleScreenBufferInfo(hOut, &csbi)) {
+        int width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        printf("Your current width is: %d chars\n", width);
+        printf("Your current height is: %d chars\n", height);
+    }
+}
+
 
 int
 main()
 {
-    //clearScreen();
-    displayHeader();
-    int i;
-    struct recipe book[50];
+    system("color F0"); //set the background color to "BRIGHT WHITE" and foreground to "BLACK"
 
-    for (i = 0; i < 50; i++)
+    for(int i = 0; i < 3; i++)
     {
-        strcpy(book[i].foodItems->item, "ingredient");
+        nextScreen();
+        displayHeader();
+        printf("%d",i);
+        Sleep(1000);
     }
 
-    printLine('-');
-    printf("Name\n");
-    printf("class\n");
-    printf("servings\n");
-    printf("total calories\n");
-    printf("\nIngredients:\n");
-    for (i = 1; i <= 20; i++)
-        printf("ingredients\n");
-    printf("\nIngredients:\n");
-    for (i = 1; i <= 15; i++)
-        printf("instructions\n");
-    printf("\33[s\33[6;0H");
-    printf("tes\33[u");
-    
     return 0;
+
+
+
+//   printLine('-');
+//   printf("Name\n");
+//   printf("class\n");
+//   printf("servings\n");
+//   printf("total calories\n");
+//   printf("\nIngredients:\n");
+//   for (i = 1; i <= 20; i++)
+//       printf("ingredients\n");
+//   printf("\nIngredients:\n");
+//   for (i = 1; i <= 15; i++)
+//       printf("instructions\n");
+//   printf("\33[s\33[6;0H");
+//   printf("tes\33[u");
+//   
+//   return 0;
 }
