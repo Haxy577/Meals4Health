@@ -5,12 +5,64 @@
 
 ******************************************************************************/
 
+/******************************************************************************
+*                                                                             *
+*                             Cursor Functions                                *
+*                                                                             *
+******************************************************************************/
+
+
+/******************************************************************************
+    This function moves the text cursor to a specific position on the console
+        screen.
+    Preconditions:
+        1. x and y are positive integers.
+
+    @param x the position in the x axis starting from the top left.
+    @param y the position in the y axis starting from the top left.
+******************************************************************************/
+void
+goToXY(int x,
+       int y)
+{
+    if (x >= 0 && y >= 0)
+        printf("\33[%d;%dH", x, y);
+}
+
+
+
+/******************************************************************************
+    This function prints the ANSI escape code for moving the cursor by x amount
+        to the left or right and by y amount to to the up or down. A negative
+        integer would correspond to left or down and a positive integer would
+        correspond to right or up.
+
+    @param x the amount of displacement of the cursor in the y-axis.
+    @param y the amount of displacement of the cursor in the y-axis.
+******************************************************************************/
+void
+moveCursor(int x,
+           int y)
+{
+    if (x > 0)
+        printf("\33[%dC", x); //right
+    else
+        printf("\33[%dD", x * -1); //left
+    
+    if (y > 0)
+        printf("\33[%dA", y); //up
+    else
+        printf("\33[%dB", y * -1); //down
+}
+
+
 
 /******************************************************************************
 *                                                                             *
-*                             Display Functions                               *
+*                             Helper Functions                                *
 *                                                                             *
 ******************************************************************************/
+
 
 /******************************************************************************
     This function checks whether the integer is within the given range
@@ -23,13 +75,13 @@
     @param return outputs TRUE if its within range, FALSE otherwise.
 ******************************************************************************/
 bool
-isInRange(int input,
+isInRange(int value,
           int min,
           int max)
 {
     bool result;
 
-    if (input >= min && input <= max)
+    if (value >= min && value <= max)
         result = TRUE;
     else
         result = FALSE;
@@ -37,29 +89,54 @@ isInRange(int input,
     return result;
 }
 
+
+
+/******************************************************************************
+*                                                                             *
+*                             Display Functions                               *
+*                                                                             *
+******************************************************************************/
+
+
 /******************************************************************************
 	This function changes the text color in the command prompt.
 	Preconditions:
         1. The parameters are non-negative integers.
         2. Parameters red, green, and blue are a number from 0 to 255.
 
-	@param modifier tracks the modifier. 1 for bold color, 2 for a dim color.
+	@param type defines what color to change. 0 for the foreground, 1 for the
+        background.
 	@param red tracks the intensity of the color red.
 	@param green tracks the intensity of the color green.
 	@param blue tracks the intensity of the color blue.
 ******************************************************************************/
 void
-paintText(int modifier,
+paintText(paintType type,
 	        int red,
 	        int green,
 	        int blue)
 {
 	//validate if the rgb values are within 0 to 255
-	if (isInRange(modifier, 0, 2) &&
-        isInRange(red, 0, 255) &&
+	if (isInRange(red, 0, 255) &&
 		isInRange(green, 0, 255) &&
 		isInRange(blue, 0, 255))
-			printf("\33[%d;38;2;%d;%d;%dm", modifier, red, green, blue);
+    {
+        if (type == FOREGROUND)
+            printf("\33[38;2;%d;%d;%dm", red, green, blue);
+        else if (type == BACKGROUND)
+            printf("\33[48;2;%d;%d;%dm", red, green, blue);
+    }
+}
+
+
+
+/******************************************************************************
+	This function removes all styles and colors.
+******************************************************************************/
+void
+resetText()
+{
+	printf("\33[0m");
 }
 
 
@@ -70,9 +147,9 @@ paintText(int modifier,
         1. The parameters are non-negative integers.
         2. Parameters red, green, and blue are a number from 0 to 255.
 
-    @param nRed tracks the intensity of the color red.
-	@param nGreen tracks the intensity of the color green.
-	@param nBlue tracks the intensity of the color blue.
+    @param red tracks the intensity of the color red.
+	@param green tracks the intensity of the color green.
+	@param blue tracks the intensity of the color blue.
 ******************************************************************************/
 void
 paintLine(int red,
@@ -90,7 +167,46 @@ paintLine(int red,
         printf("\33[2K");
 
         //Set the cursor at the start of the line
-        printf("\33[H");
+        printf("\33[1G");
+
+        //Reset all styles
+        printf("\33[0m");
+    }
+}
+
+
+
+/******************************************************************************
+    This function changes the background color of the whole screen starting
+        from where the cursor is.
+    Preconditions:
+        1. The parameters are non-negative integers.
+        2. Parameters red, green, and blue are a number from 0 to 255.
+
+    @param nRed tracks the intensity of the color red.
+	@param nGreen tracks the intensity of the color green.
+	@param nBlue tracks the intensity of the color blue.
+******************************************************************************/
+void
+paintScreen(int red,
+            int green,
+            int blue)
+{
+    if (isInRange(red, 0, 255) &&
+		isInRange(green, 0, 255) &&
+		isInRange(blue, 0, 255))
+    {
+        //Set the color
+        printf("\33[48;2;%d;%d;%dm", red, green, blue);
+
+        //Clear the screen starting from the cursor
+        printf("\33[0J");
+
+        //Set the cursor at the start of the line and the top of the new screen
+        printf("\33[1G\33[%dF", MAX_SCREEN_HEIGHT);
+
+        //Reset all styles
+        printf("\33[0m");
     }
 }
 
@@ -117,25 +233,6 @@ nextScreen()
     printf("%s", temp);
 
     printf("\33[%dF", MAX_SCREEN_HEIGHT); //move the cursor to the top of the next screen
-}
-
-
-
-/******************************************************************************
-    This function moves the text cursor to a specific position on the console
-        screen.
-    Preconditions:
-        1. x and y are positive integers.
-
-    @param x the position in the x axis starting from the top left.
-    @param y the position in the y axis starting from the top left.
-******************************************************************************/
-void
-goToXY(int x,
-       int y)
-{
-    if (x >= 0 && y >= 0)
-        printf("\33[%d;%dH", x, y);
 }
 
 
@@ -201,19 +298,4 @@ printLine(char ch)
         line[i] = ch;
     line[i] = '\0';
     printf("%s\n", line);
-}
-
-
-/******************************************************************************
-    This function prints the ANSI escape code for moving the cursor to the
-    next line.
-    Preconditions:
-        1. x is a positive integer.
-
-    @param x where to place the cursor on the screen.
-******************************************************************************/
-void
-nextLine(int x)
-{
-    printf("\33[1E\33[%dG", x);
 }

@@ -59,6 +59,13 @@ typedef enum
 } sortType;
 
 
+typedef enum
+{
+    FOREGROUND,
+    BACKGROUND
+} paintType;
+
+
 
 /*************************************************************************
 *                         Structure Declarations                         *
@@ -117,11 +124,29 @@ typedef struct
 
 
 /*************************************************************************
+*                            Cursor Functions                            *
+*************************************************************************/
+
+void goToXY(int x, int y);
+void moveCursor(int x, int y);
+
+
+/*************************************************************************
+*                            Helper Functions                            *
+*************************************************************************/
+
+bool isInRange(int value, int min, int max);
+
+
+/*************************************************************************
 *                           Display Functions                            *
 *************************************************************************/
 
-void nextScreen();
-void goToXY(int x, int y);
-void paintText(int modifier, int red, int green, int blue);
+void paintText(paintType type, int red, int green, int blue);
+void resetText();
 void paintLine(int red, int green, int blue);
+void paintScreen(int red, int green, int blue);
+void nextScreen();
 void displayOption(string20 options, int index, int selected);
+void displayHeader();
+void printLine(char ch);

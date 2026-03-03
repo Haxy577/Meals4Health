@@ -9,8 +9,8 @@ Richmond Jase Von M. Salvador, DLSU ID# 12506338
 /*  Description: A repository for cooking recipes wherein the user can add new recipes, view existing recipes,
                     generate a shopping list, and to recommend menu.
 	Programmed by: Richmond Jase Von M. Salvador  S15A
-	Last Modified: February 12, 2026
-	Version: 1.2
+	Last Modified: March 4, 2026
+	Version: 1.4
 	Acknowledgements:	
 						https://github.com/Haxy577/Meals4Health.git -> repository of the project
                         https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797 -> ANSI escape codes
@@ -36,14 +36,12 @@ void getFullscreenDimensions() {
 int
 main()
 {
-    system("color F0"); //set the background color to "BRIGHT WHITE" and foreground to "BLACK"
-
-    for(int i = 0; i < 3; i++)
+    
+    for (int i = 0; i < 3; i++)
     {
-        nextScreen();
+        paintScreen(255, 255, 255);
         displayHeader();
-        printf("%d",i);
-        Sleep(1000);
+        nextScreen();
     }
 
     return 0;
