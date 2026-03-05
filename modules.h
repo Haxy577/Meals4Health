@@ -5,6 +5,7 @@
 
 ******************************************************************************/
 
+
 /******************************************************************************
 *                                                                             *
 *                             Cursor Functions                                *
@@ -69,7 +70,7 @@ moveCursor(int x,
     Preconditions:
         1. The parameters are integers.
     
-    @param input the value to be evaluated.
+    @param value the value to be evaluated.
 	@param min the minimum value the input can be.
 	@param max the maximum value the input can be.
     @param return outputs TRUE if its within range, FALSE otherwise.
@@ -213,6 +214,60 @@ paintScreen(int red,
 
 
 /******************************************************************************
+    This function adds style to the text.
+
+    @param type decides what style to add.
+******************************************************************************/
+void
+styleText(styleType type)
+{
+    switch(type)
+    {
+        case BOLD:
+            printf("\33[1m");
+            break;
+        case ITALIC:
+            printf("\33[3m");
+            break;
+        case UNDERLINE:
+            printf("\33[4m");
+            break;
+        case STRIKETHROUGH:
+            printf("\33[9m");
+            break;
+    }
+}
+
+
+
+/******************************************************************************
+    This function resets a specific style of a text to its original state.
+
+    @param type decides what style to reset.
+******************************************************************************/
+void
+resetStyle(styleType type)
+{
+    switch(type)
+    {
+        case BOLD:
+            printf("\33[22m");
+            break;
+        case ITALIC:
+            printf("\33[23m");
+            break;
+        case UNDERLINE:
+            printf("\33[24m");
+            break;
+        case STRIKETHROUGH:
+            printf("\33[29m");
+            break;
+    }
+}
+
+
+
+/******************************************************************************
     This function moves the cursor down by MAX_SCREEN_HEIGHT + 5 which serves
         as a buffer between screens.
 ******************************************************************************/
@@ -298,4 +353,136 @@ printLine(char ch)
         line[i] = ch;
     line[i] = '\0';
     printf("%s\n", line);
+}
+
+
+
+/******************************************************************************
+*                                                                             *
+*                             Testing Functions                               *
+*                                                                             *
+******************************************************************************/
+
+
+/******************************************************************************
+    This function calls all the test functions.
+******************************************************************************/
+void
+testAllFunctions()
+{
+    testIsInRange();
+}
+
+
+
+/******************************************************************************
+    This function displays the details of the test case and its result.
+
+    @param testNum the test case number.
+    @param description the description of the test case.
+    @param input what was inputted in the function parameters.
+    @param expected the expected output of the function.
+    @param actual the actual output of the function.
+    @param result whether the expected matches the actual. Prints "PASS" if
+        it matches, "FAIL" if it does not.
+******************************************************************************/
+void
+displayTestResult(int testNum,
+              string70 description,
+              string70 input,
+              string70 expected,
+              string70 actual,
+              bool result)
+{
+    styleText(BOLD);
+    printf("Test case #%d\n", testNum);
+    resetStyle(BOLD);
+    printf("Description: %s\n", description);
+    printf("Input: %s\n", input);
+    printf("Expected: %s\n", expected);
+    printf("Actual: %s\n", actual);
+    printf("Result: ");
+    if (result == TRUE)
+    {
+        paintText(FOREGROUND, 0 ,255, 0);
+        printf("PASS\n\n");
+    }
+    else
+    {
+        paintText(FOREGROUND, 255, 0, 0);
+        printf("FAIL\n\n");
+    }
+    resetText();
+}
+
+
+
+/******************************************************************************
+    This function tests whether the function "isInRange" works as expected.
+    Test Cases:
+        1. The value is within the given range.
+        2. The value is outside the given range.
+        3. The value, min, and max are equal.
+******************************************************************************/
+void
+testIsInRange()
+{
+    int testNum = 0;
+    string70 expected;
+    string70 actual;
+
+    styleText(BOLD);
+    printf("Testing \"isInRange\" function\n\n");
+    resetStyle(BOLD);
+
+    //Test case 1
+    testNum++;
+
+    strcpy(expected, "TRUE");
+
+    if (isInRange(2, 1, 3))
+        strcpy(actual, "TRUE");
+    else
+        strcpy(actual, "FALSE");
+
+    displayTestResult(testNum,
+                      "The value is outside the given range",
+                      "Value: 1 ; Min: 2 ; Max: 3",
+                      expected,
+                      actual,
+                      strcmp(expected, actual) == 0);
+    
+    //Test case 2
+    testNum++;
+
+    strcpy(expected, "TRUE");
+
+    if (isInRange(2, 1, 3))
+        strcpy(actual, "TRUE");
+    else
+        strcpy(actual, "FALSE");
+
+    displayTestResult(testNum,
+                      "The value is within range",
+                      "Value: 2 ; Min: 1 ; Max: 3",
+                      expected,
+                      actual,
+                      strcmp(expected, actual) == 0);
+
+    //Test case 3
+    testNum++;
+
+    strcpy(expected, "TRUE");
+
+    if (isInRange(2, 1, 3))
+        strcpy(actual, "TRUE");
+    else
+        strcpy(actual, "FALSE");
+
+    displayTestResult(testNum,
+                      "The value, min, and max are equal",
+                      "Value: 1 ; Min: 1 ; Max: 1",
+                      expected,
+                      actual,
+                      strcmp(expected, actual) == 0);
 }

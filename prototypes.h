@@ -40,6 +40,7 @@ typedef char string70[71];
 typedef enum
 {
     VIEWER,
+    TESTER,
     ADMIN
 } userClass;
 
@@ -64,6 +65,15 @@ typedef enum
     FOREGROUND,
     BACKGROUND
 } paintType;
+
+
+typedef enum
+{
+    BOLD,
+    ITALIC,
+    UNDERLINE,
+    STRIKETHROUGH
+} styleType;
 
 
 
@@ -146,7 +156,18 @@ void paintText(paintType type, int red, int green, int blue);
 void resetText();
 void paintLine(int red, int green, int blue);
 void paintScreen(int red, int green, int blue);
+void styleText(styleType type);
+void resetStyle(styleType type);
 void nextScreen();
 void displayOption(string20 options, int index, int selected);
 void displayHeader();
 void printLine(char ch);
+
+
+/*************************************************************************
+*                           Testing Functions                            *
+*************************************************************************/
+
+void testAllFunctions();
+void displayTestResult(int testNum, string70 description, string70 input, string70 expected, string70 actual, bool result);
+void testIsInRange();
