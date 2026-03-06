@@ -76,6 +76,18 @@ typedef enum
 } styleType;
 
 
+typedef enum
+{
+    BACKSPACE = 8,
+    ENTER = 13,
+    ESCAPE = 27,
+    UP_ARROW = 72,
+    LEFT_ARROW = 75,
+    RIGHT_ARROW = 77,
+    DOWN_ARROW = 80
+} specialChar;
+
+
 
 /*************************************************************************
 *                         Structure Declarations                         *
@@ -139,6 +151,18 @@ typedef struct
 
 void goToXY(int x, int y);
 void moveCursor(int x, int y);
+void cursorVisibility(bool state);
+
+
+/*************************************************************************
+*                            Style Functions                             *
+*************************************************************************/
+
+void paintText(paintType type, int red, int green, int blue);
+void resetText();
+void paintLine(int red, int green, int blue);
+void paintScreen(int red, int green, int blue);
+void styleText(styleType type, bool state);
 
 
 /*************************************************************************
@@ -146,18 +170,13 @@ void moveCursor(int x, int y);
 *************************************************************************/
 
 bool isInRange(int value, int min, int max);
+char * getInput(char str[], int size);
 
 
 /*************************************************************************
 *                           Display Functions                            *
 *************************************************************************/
 
-void paintText(paintType type, int red, int green, int blue);
-void resetText();
-void paintLine(int red, int green, int blue);
-void paintScreen(int red, int green, int blue);
-void styleText(styleType type);
-void resetStyle(styleType type);
 void nextScreen();
 void displayOption(string20 options, int index, int selected);
 void displayHeader();

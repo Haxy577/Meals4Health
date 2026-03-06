@@ -47,54 +47,37 @@ moveCursor(int x,
 {
     if (x > 0)
         printf("\33[%dC", x); //right
-    else
+    else if (x < 0)
         printf("\33[%dD", x * -1); //left
     
     if (y > 0)
         printf("\33[%dA", y); //up
-    else
+    else if (y < 0)
         printf("\33[%dB", y * -1); //down
 }
 
 
 
 /******************************************************************************
-*                                                                             *
-*                             Helper Functions                                *
-*                                                                             *
-******************************************************************************/
+    This function sets the cursor visible or invisible.
 
-
-/******************************************************************************
-    This function checks whether the integer is within the given range
-    Preconditions:
-        1. The parameters are integers.
-    
-    @param value the value to be evaluated.
-	@param min the minimum value the input can be.
-	@param max the maximum value the input can be.
-    @param return outputs TRUE if its within range, FALSE otherwise.
+    @param state decides the visibility of the cursor. TRUE for visible,
+        FALSE for invisible.
 ******************************************************************************/
-bool
-isInRange(int value,
-          int min,
-          int max)
+void
+cursorVisibility(bool state)
 {
-    bool result;
-
-    if (value >= min && value <= max)
-        result = TRUE;
+    if (state == TRUE)
+        printf("\33[?25h"); //visible
     else
-        result = FALSE;
-
-    return result;
+        printf("\33[?25l"); //invisible
 }
 
 
 
 /******************************************************************************
 *                                                                             *
-*                             Display Functions                               *
+*                             Style Functions                                 *
 *                                                                             *
 ******************************************************************************/
 
@@ -214,26 +197,42 @@ paintScreen(int red,
 
 
 /******************************************************************************
-    This function adds style to the text.
+    This function adds or removes a specific style to the text. The following
+        styles are: bold, italic, underline, and strikethrough.
 
-    @param type decides what style to add.
+    @param type decides what style to add / remove.
+    @param state decides whether to add or remove the style. if TRUE then add,
+        otherwise remove.
 ******************************************************************************/
 void
-styleText(styleType type)
+styleText(styleType type,
+          bool state)
 {
     switch(type)
     {
         case BOLD:
-            printf("\33[1m");
+            if (state == TRUE)
+                printf("\33[1m");
+            else
+                printf("\33[22m");
             break;
         case ITALIC:
-            printf("\33[3m");
+            if (state == TRUE)
+                printf("\33[3m");
+            else
+                printf("\33[23m");
             break;
         case UNDERLINE:
-            printf("\33[4m");
+            if (state == TRUE)
+                printf("\33[4m");
+            else
+                printf("\33[24m");
             break;
         case STRIKETHROUGH:
-            printf("\33[9m");
+            if (state == TRUE)
+                printf("\33[9m");
+            else
+                printf("\33[29m");
             break;
     }
 }
@@ -241,30 +240,124 @@ styleText(styleType type)
 
 
 /******************************************************************************
-    This function resets a specific style of a text to its original state.
-
-    @param type decides what style to reset.
+*                                                                             *
+*                             Helper Functions                                *
+*                                                                             *
 ******************************************************************************/
-void
-resetStyle(styleType type)
+
+
+/******************************************************************************
+    This function checks whether the integer is within the given range
+    Preconditions:
+        1. The parameters are integers.
+    
+    @param value the value to be evaluated.
+	@param min the minimum value the input can be.
+	@param max the maximum value the input can be.
+    @return outputs TRUE if its within range, FALSE otherwise.
+******************************************************************************/
+bool
+isInRange(int value,
+          int min,
+          int max)
 {
-    switch(type)
-    {
-        case BOLD:
-            printf("\33[22m");
-            break;
-        case ITALIC:
-            printf("\33[23m");
-            break;
-        case UNDERLINE:
-            printf("\33[24m");
-            break;
-        case STRIKETHROUGH:
-            printf("\33[29m");
-            break;
-    }
+    bool result;
+
+    if (value >= min && value <= max)
+        result = TRUE;
+    else
+        result = FALSE;
+
+    return result;
 }
 
+
+
+/******************************************************************************
+    This function lets a user edit the string passed through the parameter.
+
+    @param str an array to store the input of the user.
+    @param size the maximum amount of characters str can take. This does not
+        include the null byte.
+    @return a copy of the final edited string.
+******************************************************************************/
+char *
+getInput(char str[], int size)
+{
+    int len = strlen(str);
+    char input;
+    int i = len;
+    int j;
+
+    str[size + 1] = '\0'; //to prevent any crashes
+
+    do
+    {
+        printf("%s", str);
+        moveCursor(len * -1, 0); //move the cursor at the start of the string
+        moveCursor(i, 0); //move the cursor at the value of i
+
+        cursorVisibility(TRUE);
+
+        input = getch(); //get the key press
+
+        cursorVisibility(FALSE);
+
+        if (input == 0) //if the input is the left or right arrows
+        {
+            switch (getch()) //get the input again
+            {
+                case RIGHT_ARROW:
+                    moveCursor(i * -1, 0); //move the cursor to the start of the string
+                    if (i < len)
+                        i++;
+                    break;
+                case LEFT_ARROW:
+                    moveCursor(i * -1, 0); //move the cursor to the start of the string
+                    if (i > 0)
+                        i--;
+                    break;
+            }
+        }       
+        else if (input == BACKSPACE && i > 0)
+        {
+            for (j = i - 1; j < len; j++) //shift everything to the left
+                str[j] = str[j + 1];
+
+            moveCursor(i * -1, 0); //move the cursor to the start of the string
+            moveCursor(len - 1, 0); //move the cursor to the last character of the string
+            printf(" "); //remove the character by printing a space
+            moveCursor(len * -1, 0); //move the cursor to the start of the string
+            i--;
+        }
+        else if (input >= ' ' && input <= '~' && len < size)
+        {
+            for (j = len + 1; j >= i; j--) //shift everything to the right of the cursor
+                str[j + 1] = str[j];
+
+            moveCursor(i * -1, 0); //move the cursor to the start of the string
+            str[i] = input;
+            i++;
+        }
+        else if (input == ENTER)
+            str[len + 1] = '\0'; //end the string with a null byte
+        else
+            moveCursor(i * -1, 0); //move the cursor to the start of the string
+
+        len = strlen(str);
+
+    } while (input != ENTER);
+    
+    return str;
+}
+
+
+
+/******************************************************************************
+*                                                                             *
+*                             Display Functions                               *
+*                                                                             *
+******************************************************************************/
 
 
 /******************************************************************************
@@ -394,9 +487,9 @@ displayTestResult(int testNum,
               string70 actual,
               bool result)
 {
-    styleText(BOLD);
+    styleText(BOLD, TRUE);
     printf("Test case #%d\n", testNum);
-    resetStyle(BOLD);
+    styleText(BOLD, FALSE);
     printf("Description: %s\n", description);
     printf("Input: %s\n", input);
     printf("Expected: %s\n", expected);
@@ -431,9 +524,9 @@ testIsInRange()
     string70 expected;
     string70 actual;
 
-    styleText(BOLD);
+    styleText(BOLD, TRUE);
     printf("Testing \"isInRange\" function\n\n");
-    resetStyle(BOLD);
+    styleText(BOLD, FALSE);
 
     //Test case 1
     testNum++;
