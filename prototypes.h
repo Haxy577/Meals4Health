@@ -180,7 +180,7 @@ char * getInput(char str[], int size);
 void nextScreen();
 void displayOption(string20 options, int index, int selected);
 void displayHeader();
-void printLine(char ch);
+void printLine(char ch, int len);
 
 
 /*************************************************************************

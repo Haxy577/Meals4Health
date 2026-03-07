@@ -286,7 +286,7 @@ getInput(char str[], int size)
 {
     int len = strlen(str);
     char input;
-    int i = len;
+    int i = len; //the current position of the cursor
     int j;
 
     str[size + 1] = '\0'; //to prevent any crashes
@@ -349,6 +349,18 @@ getInput(char str[], int size)
     } while (input != ENTER);
     
     return str;
+}
+
+
+
+/******************************************************************************
+    This function lets the user navigate through the different options using
+        the arrow keys.
+******************************************************************************/
+void
+userNavigation()
+{
+    
 }
 
 
@@ -417,32 +429,36 @@ displayOption(string20 options,
 void
 displayHeader()
 {
-    //changeColor(1, 46, 111, 64);
-    //changeBackground(255,255,255);
-    //printf("\33[48;2;255;255;255m\33[2K\33[H");
+    paintText(BACKGROUND, 255, 255, 255); //change the background to white
+    paintText(FOREGROUND, 0, 255, 0); //change the text color to green
+    styleText(BOLD, TRUE);
     printf("  __   ____   ___  _  _  __  _  _  ____     __  ____     __   _  _  ____    ____  ____  ___  __  ____  ____  ____ \n");
     printf(" / _\\ (  _ \\ / __)/ )( \\(  )/ )( \\(  __)   /  \\(  __)   /  \\ / )( \\(  _ \\  (  _ \\(  __)/ __)(  )(  _ \\(  __)/ ___)\n");
     printf("/    \\ )   /( (__ ) __ ( )( \\ \\/ / ) _)   (  O )) _)   (  O )) \\/ ( )   /   )   / ) _)( (__  )(  ) __/ ) _) \\___ \\\n");
     printf("\\_/\\_/(__\\_) \\___)\\_)(_/(__) \\__/ (____)   \\__/(__)     \\__/ \\____/(__\\_)  (__\\_)(____)\\___)(__)(__)  (____)(____/\n");
-    //printf("\33[0m\33[2J\33[H");
+    resetText();
 }
 
 
 /******************************************************************************
     This function prints a divider on the screen. The character is based on
-    the passed character.
+    the passed character and the length of the line is determined by the
+    passed integer.
     Preconditions:
         1. ch is a character that exist in the normal ASCII table.
+        2. len is a positive integer.
 
     @param ch the character to be continuously printed to form a line.
+    @param len the length of the line to be printed.
 ******************************************************************************/
 void
-printLine(char ch)
+printLine(char ch,
+          int len)
 {
     int i;
-    char line[MAX_SCREEN_LENGTH + 1];
+    char line[len + 1];
 
-    for (i = 0; i < MAX_SCREEN_LENGTH; i++)
+    for (i = 0; i < len; i++)
         line[i] = ch;
     line[i] = '\0';
     printf("%s\n", line);

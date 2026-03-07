@@ -9,8 +9,8 @@ Richmond Jase Von M. Salvador, DLSU ID# 12506338
 /*  Description: A repository for cooking recipes wherein the user can add new recipes, view existing recipes,
                     generate a shopping list, and to recommend menu.
 	Programmed by: Richmond Jase Von M. Salvador  S15A
-	Last Modified: March 6, 2026
-	Version: 1.6
+	Last Modified: March 7, 2026
+	Version: 1.7
 	Acknowledgements:	
 		https://github.com/Haxy577/Meals4Health.git -> repository of the project.
         https://docs.google.com/spreadsheets/d/1q2fRXYvtUqxOdZb7gpCDgJ19lflnFXEQodQZB7JNsZs/edit?usp=sharing -> google sheets containing the test script.
@@ -38,10 +38,26 @@ void getFullscreenDimensions() {
 int
 main()
 {
-    string20 str = "TEST";
-    printf("Input: ");
-    getInput(str, 20);
-    printf("\nActual: %s", str);
+    cursorVisibility(FALSE);
+
+    nextScreen();
+    paintScreen(255, 255, 255);
+    displayHeader();
+    paintText(FOREGROUND, 255, 255, 255);
+    paintText(BACKGROUND, 0, 177, 0);
+    printLine('=', MAX_SCREEN_LENGTH - 9);
+    resetText();
+    paintLine(0, 177, 0);
+    paintText(FOREGROUND, 255, 255, 255);
+    paintText(BACKGROUND, 0, 177, 0);
+    printf("Options\n");
+    resetText();
+    paintText(FOREGROUND, 255, 255, 255);
+    paintText(BACKGROUND, 0, 177, 0);
+    printLine('=', MAX_SCREEN_LENGTH - 9);
+    resetText();
+
+    cursorVisibility(TRUE);
 
     return 0;
 
