@@ -6,6 +6,9 @@
 #include <string.h>
 #include <conio.h>
 #include <windows.h>
+#include <limits.h>
+#include <float.h>
+#include <math.h>
 
 
 
@@ -13,6 +16,7 @@
 *                         Constants Declarations                         *
 *************************************************************************/
 
+#define FILE_TYPE ".txt"
 #define MAX_SCREEN_LENGTH 209
 #define MAX_SCREEN_HEIGHT 54
 #define MAX_RECIPE_INGREDIENTS 20
@@ -88,6 +92,14 @@ typedef enum
 } specialChar;
 
 
+typedef enum
+{
+    INTEGER,
+    FRACTION,
+    CHARACTER
+} inputType;
+
+
 
 /*************************************************************************
 *                         Structure Declarations                         *
@@ -98,17 +110,15 @@ typedef struct
     string20    item;
     float       quantity;
     string15    unit;
+    float       calorie;
 } ingredientType;
-
-
-typedef ingredientType ingredientList[MAX_RECIPE_INGREDIENTS];
 
 
 typedef struct
 {
     string20            name;
     recipeClass         class;
-    ingredientList      ingredients;
+    ingredientType      ingredients[MAX_RECIPE_INGREDIENTS];
     string70            instructions[MAX_INSTRUCTIONS];
     int                 nIngredients;
     int                 nInstructions;
@@ -117,15 +127,8 @@ typedef struct
 } recipeType;
 
 
-typedef struct
-{
-    ingredientType      ingredient;
-    float               calorie;
-} calorieType;
-
-
 typedef recipeType recipeList[MAX_RECIPES];
-typedef calorieType calorieList[MAX_INGREDIENTS];
+typedef ingredientType calorieList[MAX_INGREDIENTS];
 
 
 
@@ -169,8 +172,10 @@ void styleText(styleType type, bool state);
 *                            Helper Functions                            *
 *************************************************************************/
 
-bool isInRange(int value, int min, int max);
-char * getInput(char str[], int size);
+bool isInRange(long int value, int min, int max);
+char * getInput(inputType type, char str[], int size);
+int stringToInt(char str[]);
+float stringToFloat(char str[]);
 
 
 /*************************************************************************

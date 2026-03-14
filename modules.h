@@ -257,7 +257,7 @@ styleText(styleType type,
     @return outputs TRUE if its within range, FALSE otherwise.
 ******************************************************************************/
 bool
-isInRange(int value,
+isInRange(long int value,
           int min,
           int max)
 {
@@ -275,17 +275,28 @@ isInRange(int value,
 
 /******************************************************************************
     This function lets a user edit the string passed through the parameter.
+    Preconditions:
+        1. The string is initialized with a null byte.
+        2. The parameter size is a positive integer.
+        3. There is sufficient space in the console where the function is
+            called. Wherein the text field should only be on one row in
+            the console and the text should not wrap to another line when it
+            reached the end of the console screen.
 
+    @param type decides what to store. INTEGER for int data only, FRACTION for
+        float data, and CHARACTER for char data.
     @param str an array to store the input of the user.
     @param size the maximum amount of characters str can take. This does not
         include the null byte.
     @return a copy of the final edited string.
 ******************************************************************************/
 char *
-getInput(char str[], int size)
+getInput(inputType type,
+         char str[],
+         int size)
 {
     int len = strlen(str);
-    char input;
+    int input;
     int i = len; //the current position of the cursor
     int j;
 
@@ -303,7 +314,7 @@ getInput(char str[], int size)
 
         cursorVisibility(FALSE);
 
-        if (input == 0) //if the input is the left or right arrows
+        if (input == 0 || input == 224) //if the input is the left or right arrows
         {
             switch (getch()) //get the input again
             {
@@ -319,6 +330,7 @@ getInput(char str[], int size)
                     break;
             }
         }       
+
         else if (input == BACKSPACE && i > 0)
         {
             for (j = i - 1; j < len; j++) //shift everything to the left
@@ -330,7 +342,8 @@ getInput(char str[], int size)
             moveCursor(len * -1, 0); //move the cursor to the start of the string
             i--;
         }
-        else if (input >= ' ' && input <= '~' && len < size)
+
+        else if ((type == INTEGER || type == FRACTION) && input == '-' && i == 0)
         {
             for (j = len + 1; j >= i; j--) //shift everything to the right of the cursor
                 str[j + 1] = str[j];
@@ -339,8 +352,40 @@ getInput(char str[], int size)
             str[i] = input;
             i++;
         }
+
+        else if (type == INTEGER && isInRange(input, '0', '9') && len < size)
+        {
+            for (j = len + 1; j >= i; j--) //shift everything to the right of the cursor
+                str[j + 1] = str[j];
+
+            moveCursor(i * -1, 0); //move the cursor to the start of the string
+            str[i] = input;
+            i++;
+        }
+
+        else if (type == FRACTION && (isInRange(input, '0', '9') || input == '.') && len < size)
+        {
+            for (j = len + 1; j >= i; j--) //shift everything to the right of the cursor
+                str[j + 1] = str[j];
+
+            moveCursor(i * -1, 0); //move the cursor to the start of the string
+            str[i] = input;
+            i++;
+        }
+
+        else if (type == CHARACTER && isInRange(input, ' ', '~') && len < size)
+        {
+            for (j = len + 1; j >= i; j--) //shift everything to the right of the cursor
+                str[j + 1] = str[j];
+
+            moveCursor(i * -1, 0); //move the cursor to the start of the string
+            str[i] = input;
+            i++;
+        }
+
         else if (input == ENTER)
             str[len + 1] = '\0'; //end the string with a null byte
+
         else
             moveCursor(i * -1, 0); //move the cursor to the start of the string
 
@@ -349,6 +394,108 @@ getInput(char str[], int size)
     } while (input != ENTER);
     
     return str;
+}
+
+
+
+/******************************************************************************
+    This functions takes a string and converts it into its corresponding
+        integer representation.
+    Preconditions:
+        1. The string only contains characters from 0 - 9 or a dash '-'.
+
+    @param str is the array to be converted to an integer.
+    @return the converted integer.
+******************************************************************************/
+int
+stringToInt(char str[])
+{
+    int i;
+    int result = 0;
+    int size = strlen(str);
+
+    if (str[0] == '-')
+        i = 1;
+    else
+        i = 0;
+
+    while (i < size && isInRange(result * 10, 0, INT_MAX))
+    {
+        result *= 10;
+        result += str[i] - '0';
+        i++;
+    }
+
+    if (str[0] == '-')
+        result *= -1;
+
+    return result;
+}
+
+
+
+bool
+floatInRange(double value,
+             float min,
+             float max)
+{
+    bool result;
+
+    if (value >= min && value <= max)
+        result = TRUE;
+    else
+        result = FALSE;
+
+    return result;
+}
+
+
+
+/******************************************************************************
+    This functions takes a string and converts it into its corresponding
+        integer representation.
+    Preconditions:
+        1. The string only contains characters from 0 - 9 or a dash '-'.
+
+    @param str is the array to be converted to an integer.
+    @return the converted integer.
+******************************************************************************/
+float
+stringToFloat(char str[])
+{
+    int i, j;
+    float whole = 0.0;
+    float fraction = 0.0;
+    int size = strlen(str);
+    int sign = 1;
+
+    if (str[0] == '-')
+    {
+        sign = -1;
+        i = 1;
+    }
+    else
+        i = 0;
+
+    while (i < size && floatInRange(whole * 10.0, 0, FLT_MAX) && str[i] != '.')
+    {
+        
+        whole *= 10.0;
+        whole += (float) str[i] - '0';
+        i++;
+    }
+
+    j = size - 1;
+
+    while (j > i && floatInRange((whole + fraction) / 10.0, 0, FLT_MAX))
+    {
+        fraction += (float) str[j] - '0';
+        fraction /= 10;
+        j--;
+    }
+
+
+    return (whole + fraction) * sign;
 }
 
 
