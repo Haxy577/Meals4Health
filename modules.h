@@ -274,6 +274,31 @@ isInRange(long int value,
 
 
 /******************************************************************************
+    This function checks whether the integer is within the given range
+    
+    @param value the value to be evaluated.
+	@param min the minimum value the input can be.
+	@param max the maximum value the input can be.
+    @return outputs TRUE if its within range, FALSE otherwise.
+******************************************************************************/
+bool
+floatInRange(double value,
+             float min,
+             float max)
+{
+    bool result;
+
+    if (value >= min && value <= max)
+        result = TRUE;
+    else
+        result = FALSE;
+
+    return result;
+}
+
+
+
+/******************************************************************************
     This function lets a user edit the string passed through the parameter.
     Preconditions:
         1. The string is initialized with a null byte.
@@ -413,40 +438,24 @@ stringToInt(char str[])
     int i;
     int result = 0;
     int size = strlen(str);
+	int sign = 1;
 
     if (str[0] == '-')
-        i = 1;
+	{
+		sign = 1;
+		i = 1; //skip the negative sign
+	}
     else
         i = 0;
 
     while (i < size && isInRange(result * 10, 0, INT_MAX))
     {
-        result *= 10;
-        result += str[i] - '0';
+        result *= 10; //make space for the new number
+        result += str[i] - '0'; //add the number
         i++;
-    }
+	}
 
-    if (str[0] == '-')
-        result *= -1;
-
-    return result;
-}
-
-
-
-bool
-floatInRange(double value,
-             float min,
-             float max)
-{
-    bool result;
-
-    if (value >= min && value <= max)
-        result = TRUE;
-    else
-        result = FALSE;
-
-    return result;
+    return result * sign;
 }
 
 
@@ -455,7 +464,8 @@ floatInRange(double value,
     This functions takes a string and converts it into its corresponding
         integer representation.
     Preconditions:
-        1. The string only contains characters from 0 - 9 or a dash '-'.
+        1. The string only contains characters from 0 - 9, a dash '-' or
+			a dot '.'.
 
     @param str is the array to be converted to an integer.
     @return the converted integer.
@@ -464,38 +474,40 @@ float
 stringToFloat(char str[])
 {
     int i, j;
-    float whole = 0.0;
-    float fraction = 0.0;
+    double whole = 0.0;
+    double fraction = 0.0;
     int size = strlen(str);
     int sign = 1;
 
     if (str[0] == '-')
     {
         sign = -1;
-        i = 1;
+        i = 1; //skip the negative sign
     }
     else
         i = 0;
 
+	//convert the whole part of the number
     while (i < size && floatInRange(whole * 10.0, 0, FLT_MAX) && str[i] != '.')
     {
         
         whole *= 10.0;
-        whole += (float) str[i] - '0';
+        whole += (double) str[i] - '0';
         i++;
     }
 
     j = size - 1;
 
+	//convert the fractional part of the number
     while (j > i && floatInRange((whole + fraction) / 10.0, 0, FLT_MAX))
     {
-        fraction += (float) str[j] - '0';
+        fraction += (double) str[j] - '0';
         fraction /= 10;
         j--;
     }
 
 
-    return (whole + fraction) * sign;
+    return (float) (whole + fraction) * sign; //typecast to float to ensure presicion
 }
 
 
@@ -508,6 +520,114 @@ void
 userNavigation()
 {
     
+}
+
+
+
+/******************************************************************************
+	This function will check whether the passed fileName is valid specifically
+		in a windows environment.
+	Preconditions:
+		1. The file name does not contain any reserved names in windows.
+
+	@param fileName the string to be checked.
+	@param fileExt the desired extention of the file including the dot '.'.
+	@return TRUE if the file name is valid, FALSE otherwise.
+******************************************************************************/
+bool
+isFileNameValid(char * fileName,
+				char * fileExt)
+{
+	int i;
+	bool isValid;
+	int nameLen = strlen(fileName);
+	int extLen = strlen(fileExt);
+
+	if (nameLen < extLen) //check if the file name contains something aside from the extention.
+		isValid = FALSE;
+	else if (absStrCmp(fileName + nameLen - extLen, FileExt) == 0) //check if it has the right file extention.
+		isValid = TRUE;
+
+	for (i = 0; i < nameLen; i++) //check for disallowed characters
+	{
+		if (fileName[i] == '<' ||
+			fileName[i] == '>' ||
+			fileName[i] == ';' ||
+			fileName[i] == '"' ||
+			fileName[i] == '/' ||
+			fileName[i] == '\\' ||
+			fileName[i] == '|' ||
+			fileName[i] == '?' ||
+			fileName[i] == '*')
+		{
+			isValid = FALSE;
+		}	
+	}
+
+	return isValid;
+}
+
+
+
+/******************************************************************************
+	This function will convert a string depending on the type of modification
+		the user desires. The following are the string modifications
+		available:
+		1. UPPER_CASE - transforms all lower case letters into upper case.
+		2. LOWER_CASE - transforms all upper case letters into lower case.
+
+	@param str is the string to be modified.
+	@param type defines the type of modification to be done to the string.
+	@return is a copy of the final edited string.
+******************************************************************************/
+char *
+convertString(char * str,
+			 convertStr type)
+{
+	int i;
+	int len = strlen(str);
+
+	for (i = 0; i < len; i++)
+		switch (type)
+		{
+			case UPPER_CASE: //change all lower case letters to upper case
+				if (isInRange((int) str[i], (int) 'a', (int) 'z'))
+					str[i] -= 'a' - 'A';
+				break;
+			case LOWER_CASE: //change all upper case letters into upper case
+				if (isInRange((int) str[i], (int) 'A', (int) 'Z'))
+					str[i] += 'a' - 'A';
+				break;
+		}
+
+	return str; //return a copy of the string
+}
+
+
+
+/******************************************************************************
+    This function will compare would convert all lower case letters to
+		upper case letters then compare these two strings together.
+
+	@param str1 the first string to be compared to str2.
+	@param str2 the second string to be compared to str1.
+	@return the result of strcmp of str1 and str 2.
+******************************************************************************/
+int
+absStrCmp(char * str1,
+		  char * str2)
+{
+	const int len1 = strlen(str1);
+	const int len2 = strlen(str2);
+	char temp1[len1];
+	char temp2[len2];
+
+	strcpy(temp1, str1);
+	strcpy(temp2, str2);
+	convertString(temp1, UPPER_CASE);
+	convertString(temp2, UPPER_CASE);
+	
+	return strcmp(temp1, temp2);
 }
 
 
