@@ -368,7 +368,7 @@ getInput(inputType type,
             i--;
         }
 
-        else if ((type == INTEGER || type == FRACTION) && input == '-' && i == 0)
+        else if ((type == INTEGER || type == FRACTION) && input == '-' && i == 0) //if the user wants the number to be negative
         {
             for (j = len + 1; j >= i; j--) //shift everything to the right of the cursor
                 str[j + 1] = str[j];
@@ -428,6 +428,8 @@ getInput(inputType type,
         integer representation.
     Preconditions:
         1. The string only contains characters from 0 - 9 or a dash '-'.
+        2. There
+            Additionally, it must only be in the first element of the string.
 
     @param str is the array to be converted to an integer.
     @return the converted integer.
@@ -466,6 +468,10 @@ stringToInt(char str[])
     Preconditions:
         1. The string only contains characters from 0 - 9, a dash '-' or
 			a dot '.'.
+        2. There must be only one instance of the dash '-' character in the
+            string.
+        3. The dash '-' character must only exist in the first element
+            of the string.
 
     @param str is the array to be converted to an integer.
     @return the converted integer.
@@ -496,7 +502,10 @@ stringToFloat(char str[])
         i++;
     }
 
-    j = size - 1;
+    j = i + 1;
+
+    while (j < size - 1 && str[j] != '.')
+        j++; //set j to the end of the float number
 
 	//convert the fractional part of the number
     while (j > i && floatInRange((whole + fraction) / 10.0, 0, FLT_MAX))
@@ -608,6 +617,7 @@ convertString(char * str,
 /******************************************************************************
     This function will compare would convert all lower case letters to
 		upper case letters then compare these two strings together.
+        The paseed string would not be modified.
 
 	@param str1 the first string to be compared to str2.
 	@param str2 the second string to be compared to str1.
@@ -628,6 +638,65 @@ absStrCmp(char * str1,
 	convertString(temp2, UPPER_CASE);
 	
 	return strcmp(temp1, temp2);
+}
+
+
+
+int
+arrayMaxStrLen(char arr[],
+              int nElem)
+{
+    int i;
+    int max = strlen(arr[0]); //assume the first rlement is the max
+
+    for (i = 1; i < nElem; i++)
+        if (strlen(arr[i]) > max)
+            max = strlen(arr[i]);
+    
+    return max;
+}
+
+/******************************************************************************
+    This function sorts a given 1D areay containig integers. This uses the
+        selection sort algorithm.
+    Preconditions:
+        1. The contents of the array are integers.
+        2. The array is initialized.
+
+    @param type decides the order of the sorted array. INCREASING for smallest
+        to largest, DECREASING for largest to smallest.
+    @param arr is the array to be sorted.
+    @param nElem is the number of elements in the array.
+******************************************************************************/
+void
+sortIntArray(int arr[],
+             int nElem)
+{
+    int i, j;
+    int temp;
+    int swap;
+
+    for (i = 0; i < nElem - 1;i++)
+    {
+        swap = i;
+        
+        switch (type)
+        {
+            case INCREASING:
+                for (j = 0; j < nElem; j++)
+                   if (arr[swap] > arr[j])
+                       swap = 
+            break;
+        }
+        
+        //swap if necessary
+        if (i != min)
+        {
+            tenp = arr[i];
+            arr[i] = arr[min];
+            atr[min] = temp;
+        }
+    }
 }
 
 
@@ -812,8 +881,6 @@ testIsInRange()
     styleText(BOLD, FALSE);
 
     //Test case 1
-    testNum++;
-
     strcpy(expected, "TRUE");
 
     if (isInRange(2, 1, 3))
@@ -821,7 +888,7 @@ testIsInRange()
     else
         strcpy(actual, "FALSE");
 
-    displayTestResult(testNum,
+    displayTestResult(++testNum,
                       "The value is outside the given range",
                       "Value: 1 ; Min: 2 ; Max: 3",
                       expected,
@@ -829,8 +896,6 @@ testIsInRange()
                       strcmp(expected, actual) == 0);
     
     //Test case 2
-    testNum++;
-
     strcpy(expected, "TRUE");
 
     if (isInRange(2, 1, 3))
@@ -838,7 +903,7 @@ testIsInRange()
     else
         strcpy(actual, "FALSE");
 
-    displayTestResult(testNum,
+    displayTestResult(++testNum,
                       "The value is within range",
                       "Value: 2 ; Min: 1 ; Max: 3",
                       expected,
@@ -846,8 +911,6 @@ testIsInRange()
                       strcmp(expected, actual) == 0);
 
     //Test case 3
-    testNum++;
-
     strcpy(expected, "TRUE");
 
     if (isInRange(2, 1, 3))
@@ -855,10 +918,25 @@ testIsInRange()
     else
         strcpy(actual, "FALSE");
 
-    displayTestResult(testNum,
+    displayTestResult(++testNum,
                       "The value, min, and max are equal",
                       "Value: 1 ; Min: 1 ; Max: 1",
                       expected,
                       actual,
                       strcmp(expected, actual) == 0);
+    
+    //Test case 4
+    strcpy(expected, FALSE);
+
+    if(isInRange(INT_MAX + 1, 0, INT_MAX))
+        strcpy(actual, TRUE);
+    else
+        strcpy(actual, FALSE);
+
+        displayTestResult(++testNum,
+                          "The value is greater than INT_MAX",
+                          "Value: INT_MAX + 1 ; Min: 0 ; Max: INT_MAX",
+                          expected,
+                          actual,
+                          strcmp(expected, actual) == 0);
 }
