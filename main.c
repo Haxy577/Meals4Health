@@ -21,6 +21,7 @@ Richmond Jase Von M. Salvador, DLSU ID# 12506338
 
 
 #include "modules.h"
+#include "testCases.h"
 
 void getFullscreenDimensions() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -38,30 +39,7 @@ void getFullscreenDimensions() {
 int
 main()
 {
-    //string20 str = "\0";
-    //printf("\n%s", getInput(INTEGER, str, 20));
-    //printf("\n%d", stringToInt(getInput(INTEGER, str, 20)));
-    //printf("%d", INT_MAX + 1);
-    //printf("%f", ((67.0 * 10) + 7) / 10);
-    printf("%f", stringToFloat("-4144.112491"));
+    testAllFunctions();
 
     return 0;
-
-
-
-//   printLine('-');
-//   printf("Name\n");
-//   printf("class\n");
-//   printf("servings\n");
-//   printf("total calories\n");
-//   printf("\nIngredients:\n");
-//   for (i = 1; i <= 20; i++)
-//       printf("ingredients\n");
-//   printf("\nIngredients:\n");
-//   for (i = 1; i <= 15; i++)
-//       printf("instructions\n");
-//   printf("\33[s\33[6;0H");
-//   printf("tes\33[u");
-//   
-//   return 0;
 }

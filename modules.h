@@ -1,3 +1,5 @@
+#ifndef MODULES_H
+#define MODULES_H
 #include "prototypes.h"
 
 
@@ -257,7 +259,7 @@ styleText(styleType type,
     @return outputs TRUE if its within range, FALSE otherwise.
 ******************************************************************************/
 bool
-isInRange(long int value,
+isInRange(long long value,
           int min,
           int max)
 {
@@ -316,7 +318,7 @@ floatInRange(double value,
     @return a copy of the final edited string.
 ******************************************************************************/
 char *
-getInput(inputType type,
+getInput(dataType type,
          char str[],
          int size)
 {
@@ -427,9 +429,13 @@ getInput(inputType type,
     This functions takes a string and converts it into its corresponding
         integer representation.
     Preconditions:
-        1. The string only contains characters from 0 - 9 or a dash '-'.
-        2. There
-            Additionally, it must only be in the first element of the string.
+        1. The string only contains characters from 0 - 9, a dash '-' or
+			a dot '.'.
+        2. There must be only one instance of the dash '-' character in the
+            string.
+        3. The dash '-' character must only exist in the first element
+            of the string.
+        4. The string must be initialized.
 
     @param str is the array to be converted to an integer.
     @return the converted integer.
@@ -444,7 +450,7 @@ stringToInt(char str[])
 
     if (str[0] == '-')
 	{
-		sign = 1;
+		sign = -1;
 		i = 1; //skip the negative sign
 	}
     else
@@ -472,6 +478,7 @@ stringToInt(char str[])
             string.
         3. The dash '-' character must only exist in the first element
             of the string.
+        4. The string must be initialized.
 
     @param str is the array to be converted to an integer.
     @return the converted integer.
@@ -480,7 +487,7 @@ float
 stringToFloat(char str[])
 {
     int i, j;
-    double whole = 0.0;
+    double whole = 0.0; //use double for precision
     double fraction = 0.0;
     int size = strlen(str);
     int sign = 1;
@@ -504,19 +511,20 @@ stringToFloat(char str[])
 
     j = i + 1;
 
-    while (j < size - 1 && str[j] != '.')
-        j++; //set j to the end of the float number
-
-	//convert the fractional part of the number
-    while (j > i && floatInRange((whole + fraction) / 10.0, 0, FLT_MAX))
+    if (j < size)
     {
-        fraction += (double) str[j] - '0';
-        fraction /= 10;
-        j--;
+        while (j < size && str[j] != '.')
+            j++; //set j to the end of the float number
+
+	    //convert the fractional part of the number
+        while (--j > i && floatInRange((whole + fraction) / 10.0, 0, FLT_MAX))
+        {
+            fraction += (double) str[j] - '0';
+            fraction /= 10;
+        }
     }
 
-
-    return (float) (whole + fraction) * sign; //typecast to float to ensure presicion
+    return (float) (whole + fraction) * sign; //typecast to float
 }
 
 
@@ -544,17 +552,17 @@ userNavigation()
 	@return TRUE if the file name is valid, FALSE otherwise.
 ******************************************************************************/
 bool
-isFileNameValid(char * fileName,
-				char * fileExt)
+isFileNameValid(char fileName[],
+				char fileExt[])
 {
 	int i;
 	bool isValid;
 	int nameLen = strlen(fileName);
 	int extLen = strlen(fileExt);
 
-	if (nameLen < extLen) //check if the file name contains something aside from the extention.
+	if (nameLen <= extLen) //check if the file name contains something aside from the extention.
 		isValid = FALSE;
-	else if (absStrCmp(fileName + nameLen - extLen, FileExt) == 0) //check if it has the right file extention.
+	else if (absStrCmp(fileName + nameLen - extLen, fileExt) == 0) //check if it has the right file extention.
 		isValid = TRUE;
 
 	for (i = 0; i < nameLen; i++) //check for disallowed characters
@@ -590,7 +598,7 @@ isFileNameValid(char * fileName,
 	@return is a copy of the final edited string.
 ******************************************************************************/
 char *
-convertString(char * str,
+convertString(char str[],
 			 convertStr type)
 {
 	int i;
@@ -617,15 +625,15 @@ convertString(char * str,
 /******************************************************************************
     This function will compare would convert all lower case letters to
 		upper case letters then compare these two strings together.
-        The paseed string would not be modified.
+        The passed strings would not be modified.
 
 	@param str1 the first string to be compared to str2.
 	@param str2 the second string to be compared to str1.
 	@return the result of strcmp of str1 and str 2.
 ******************************************************************************/
 int
-absStrCmp(char * str1,
-		  char * str2)
+absStrCmp(char str1[],
+		  char str2[])
 {
 	const int len1 = strlen(str1);
 	const int len2 = strlen(str2);
@@ -642,59 +650,52 @@ absStrCmp(char * str1,
 
 
 
-int
-arrayMaxStrLen(char arr[],
-              int nElem)
-{
-    int i;
-    int max = strlen(arr[0]); //assume the first rlement is the max
-
-    for (i = 1; i < nElem; i++)
-        if (strlen(arr[i]) > max)
-            max = strlen(arr[i]);
-    
-    return max;
-}
-
 /******************************************************************************
-    This function sorts a given 1D areay containig integers. This uses the
-        selection sort algorithm.
+    This function sorts a given 1D array containing strings.
     Preconditions:
-        1. The contents of the array are integers.
+        1. The contents of the array are strings.
         2. The array is initialized.
 
     @param type decides the order of the sorted array. INCREASING for smallest
         to largest, DECREASING for largest to smallest.
-    @param arr is the array to be sorted.
     @param nElem is the number of elements in the array.
+    @param maxLen is the maximum amount of characters each string can hold.
+    @param arr is the array to be sorted.
 ******************************************************************************/
 void
-sortIntArray(int arr[],
-             int nElem)
+sortStrArray(sortType type,
+             int nElem,
+             int maxLen,
+             char arr[nElem][maxLen])
 {
     int i, j;
-    int temp;
     int swap;
+    char temp[maxLen + 1];
 
     for (i = 0; i < nElem - 1;i++)
     {
-        swap = i;
+        swap = i; //assume the first element is the largest/smallest
         
         switch (type)
         {
             case INCREASING:
-                for (j = 0; j < nElem; j++)
-                   if (arr[swap] > arr[j])
-                       swap = 
-            break;
+                for (j = i + 1; j < nElem; j++)
+                    if (strcmp(arr[swap], arr[j]) > 0)
+                        swap = j;
+                break;
+            case DECREASING:
+                for (j = i + 1; j < nElem; j++)
+                    if (strcmp(arr[swap], arr[j]) < 0)
+                        swap = j;
+                break;
         }
         
         //swap if necessary
-        if (i != min)
+        if (i != swap)
         {
-            tenp = arr[i];
-            arr[i] = arr[min];
-            atr[min] = temp;
+            strcpy(temp, arr[j]);
+            strcpy(arr[j], arr[swap]);
+            strcpy(arr[swap], temp);
         }
     }
 }
@@ -801,142 +802,4 @@ printLine(char ch,
 }
 
 
-
-/******************************************************************************
-*                                                                             *
-*                             Testing Functions                               *
-*                                                                             *
-******************************************************************************/
-
-
-/******************************************************************************
-    This function calls all the test functions.
-******************************************************************************/
-void
-testAllFunctions()
-{
-    testIsInRange();
-}
-
-
-
-/******************************************************************************
-    This function displays the details of the test case and its result.
-
-    @param testNum the test case number.
-    @param description the description of the test case.
-    @param input what was inputted in the function parameters.
-    @param expected the expected output of the function.
-    @param actual the actual output of the function.
-    @param result whether the expected matches the actual. Prints "PASS" if
-        it matches, "FAIL" if it does not.
-******************************************************************************/
-void
-displayTestResult(int testNum,
-              string70 description,
-              string70 input,
-              string70 expected,
-              string70 actual,
-              bool result)
-{
-    styleText(BOLD, TRUE);
-    printf("Test case #%d\n", testNum);
-    styleText(BOLD, FALSE);
-    printf("Description: %s\n", description);
-    printf("Input: %s\n", input);
-    printf("Expected: %s\n", expected);
-    printf("Actual: %s\n", actual);
-    printf("Result: ");
-    if (result == TRUE)
-    {
-        paintText(FOREGROUND, 0 ,255, 0);
-        printf("PASS\n\n");
-    }
-    else
-    {
-        paintText(FOREGROUND, 255, 0, 0);
-        printf("FAIL\n\n");
-    }
-    resetText();
-}
-
-
-
-/******************************************************************************
-    This function tests whether the function "isInRange" works as expected.
-    Test Cases:
-        1. The value is within the given range.
-        2. The value is outside the given range.
-        3. The value, min, and max are equal.
-******************************************************************************/
-void
-testIsInRange()
-{
-    int testNum = 0;
-    string70 expected;
-    string70 actual;
-
-    styleText(BOLD, TRUE);
-    printf("Testing \"isInRange\" function\n\n");
-    styleText(BOLD, FALSE);
-
-    //Test case 1
-    strcpy(expected, "TRUE");
-
-    if (isInRange(2, 1, 3))
-        strcpy(actual, "TRUE");
-    else
-        strcpy(actual, "FALSE");
-
-    displayTestResult(++testNum,
-                      "The value is outside the given range",
-                      "Value: 1 ; Min: 2 ; Max: 3",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
-    
-    //Test case 2
-    strcpy(expected, "TRUE");
-
-    if (isInRange(2, 1, 3))
-        strcpy(actual, "TRUE");
-    else
-        strcpy(actual, "FALSE");
-
-    displayTestResult(++testNum,
-                      "The value is within range",
-                      "Value: 2 ; Min: 1 ; Max: 3",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
-
-    //Test case 3
-    strcpy(expected, "TRUE");
-
-    if (isInRange(2, 1, 3))
-        strcpy(actual, "TRUE");
-    else
-        strcpy(actual, "FALSE");
-
-    displayTestResult(++testNum,
-                      "The value, min, and max are equal",
-                      "Value: 1 ; Min: 1 ; Max: 1",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
-    
-    //Test case 4
-    strcpy(expected, FALSE);
-
-    if(isInRange(INT_MAX + 1, 0, INT_MAX))
-        strcpy(actual, TRUE);
-    else
-        strcpy(actual, FALSE);
-
-        displayTestResult(++testNum,
-                          "The value is greater than INT_MAX",
-                          "Value: INT_MAX + 1 ; Min: 0 ; Max: INT_MAX",
-                          expected,
-                          actual,
-                          strcmp(expected, actual) == 0);
-}
+#endif

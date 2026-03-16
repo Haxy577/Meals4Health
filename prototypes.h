@@ -1,3 +1,6 @@
+#ifndef PROTOTYPES_H
+#define PROTOTYPES_H
+
 /*************************************************************************
 *                        Header File Declarations                        *
 *************************************************************************/
@@ -97,7 +100,14 @@ typedef enum
     INTEGER,
     FRACTION,
     CHARACTER
-} inputType;
+} dataType;
+
+
+typedef enum
+{
+    UPPER_CASE,
+    LOWER_CASE
+} convertStr;
 
 
 
@@ -172,10 +182,15 @@ void styleText(styleType type, bool state);
 *                            Helper Functions                            *
 *************************************************************************/
 
-bool isInRange(long int value, int min, int max);
-char * getInput(inputType type, char str[], int size);
+bool isInRange(long long value, int min, int max);
+char * getInput(dataType type, char str[], int size);
 int stringToInt(char str[]);
 float stringToFloat(char str[]);
+bool isFileNameValid(char fileName[], char fileExt[]);
+char * convertString(char str[], convertStr type);
+int absStrCmp(char str1[], char str2[]);
+void sortStrArray(sortType type, int nElem, int maxLen, char arr[nElem][maxLen]);
+
 
 
 /*************************************************************************
@@ -195,3 +210,12 @@ void printLine(char ch, int len);
 void testAllFunctions();
 void displayTestResult(int testNum, string70 description, string70 input, string70 expected, string70 actual, bool result);
 void testIsInRange();
+void testFloatInRange();
+void testStringToInt();
+void testStringToFloat();
+void testIsFileNameValid();
+void testConvertString();
+void testAbsStrCmp();
+
+
+#endif
