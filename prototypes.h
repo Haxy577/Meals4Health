@@ -27,6 +27,8 @@
 #define MAX_INGREDIENTS 50
 #define MAX_FOOD_ITEMS 20
 #define MAX_INSTRUCTIONS 15
+#define MAX_COL_OPTIONS 12
+#define MAX_ROW_OPTIONS 20
 
 
 
@@ -110,6 +112,45 @@ typedef enum
 } convertStr;
 
 
+typedef enum
+{
+    HOME = 1,
+    UPDATE_RECIPE_BOX,
+    ACCESS_RECIPE_BOX,
+    ACCOUNT,
+    EXIT
+} menuOptions;
+
+
+typedef enum
+{
+    UPDATE_ADD_CALORIE_INFO = 1,
+    UPDATE_VIEW_CALORIE_CHART,
+    UPDATE_SAVE_CALORIE_INFO,
+    UPDATE_LOAD_CALORIE_INFO,
+    UPDATE_ADD_RECIPE,
+    UPDATE_MODIFY_RECIPE,
+    UPDATE_DELETE_RECIPE,
+    UPDATE_LIST_RECIPES,
+    UPDATE_SCAN_RECIPES,
+    UPDATE_SEARCH_TITLE,
+    UPDATE_EXPORT_RECIPES,
+    UPDATE_IMPORT_RECIPES
+} updateOptions;
+
+
+typedef enum
+{
+    ACCESS_IMPORT_RECIPES = 1,
+    ACCESS_LIST_RECIPE_TITLES,
+    ACCESS_SCAN_RECIPES,
+    ACCESS_SEARCH_TITLE,
+    ACCESS_SHOPPING_LIST,
+    ACCESS_SCAN_INGREDIENT,
+    ACCESS_RECOMMENDED_MENU
+} accessOptions;
+
+
 
 /*************************************************************************
 *                         Structure Declarations                         *
@@ -141,13 +182,32 @@ typedef recipeType recipeList[MAX_RECIPES];
 typedef ingredientType calorieList[MAX_INGREDIENTS];
 
 
-
 typedef struct
 {
     string20    username;
     string20    password;
     userClass   type;
 } userType;
+
+
+typedef struct
+{
+    int    row;
+    int    col;
+    int    rowMax;
+} userNav;
+
+
+typedef struct
+{
+    int         x;
+    int         row;
+    string20    names[MAX_COL_OPTIONS];
+    int         nOptions;
+    int         hover;
+    int         selected;
+} options;
+
 
 
 
@@ -164,6 +224,7 @@ typedef struct
 
 void goToXY(int x, int y);
 void moveCursor(int x, int y);
+void moveCursorX(int x);
 void cursorVisibility(bool state);
 
 
@@ -190,6 +251,9 @@ bool isFileNameValid(char fileName[], char fileExt[]);
 char * convertString(char str[], convertStr type);
 int absStrCmp(char str1[], char str2[]);
 void sortStrArray(sortType type, int nElem, int maxLen, char arr[nElem][maxLen]);
+void displayOptions(options option);
+void userNavigation(userNav *pos, options menu[MAX_ROW_OPTIONS]);
+void initializeOptions(userNav *pos, options rowOptions[MAX_ROW_OPTIONS]);
 
 
 

@@ -40,7 +40,7 @@ goToXY(int x,
         integer would correspond to left or down and a positive integer would
         correspond to right or up.
 
-    @param x the amount of displacement of the cursor in the y-axis.
+    @param x the amount of displacement of the cursor in the x-axis.
     @param y the amount of displacement of the cursor in the y-axis.
 ******************************************************************************/
 void
@@ -56,6 +56,21 @@ moveCursor(int x,
         printf("\33[%dA", y); //up
     else if (y < 0)
         printf("\33[%dB", y * -1); //down
+}
+
+
+
+/******************************************************************************
+    This function prints the ANSI escape code for moving the cursor by the
+        desired x position in the console.
+
+    @param x the position of the cursor in the console starting at 1.
+******************************************************************************/
+void
+moveCursorX(int x)
+{
+    if (x > 0)
+        printf("\33[%dG", x);
 }
 
 
@@ -530,18 +545,6 @@ stringToFloat(char str[])
 
 
 /******************************************************************************
-    This function lets the user navigate through the different options using
-        the arrow keys.
-******************************************************************************/
-void
-userNavigation()
-{
-    
-}
-
-
-
-/******************************************************************************
 	This function will check whether the passed fileName is valid specifically
 		in a windows environment.
 	Preconditions:
@@ -655,6 +658,7 @@ absStrCmp(char str1[],
     Preconditions:
         1. The contents of the array are strings.
         2. The array is initialized.
+        3. nElem is a positive integer.
 
     @param type decides the order of the sorted array. INCREASING for smallest
         to largest, DECREASING for largest to smallest.
@@ -702,6 +706,230 @@ sortStrArray(sortType type,
 
 
 
+
+void
+displayAllOptions(options option[MAX_ROW_OPTIONS],
+                  int lastRow)
+{
+    int i;
+    
+    for (i = 0; i <= lastRow; i++)
+    {
+        if (i > 0)
+        {
+            moveCursorX(1);
+            moveCursor(0, (option[i].x - option[i - 1].x) * -1);
+        }
+
+        displayOptions(option[i]);
+    }
+}
+
+
+/******************************************************************************
+    This function displays the available options in a row.
+    Preconditions:
+        1. The structure is initialized.
+
+    @param option is the structure containing the options to be displayed.
+******************************************************************************/
+void
+displayOptions(options option)
+{
+    int i;
+    
+    for (i = 0; i < option.nOptions; i++)
+    {
+        if (i == 0)
+            printf(" ");
+        else
+            printf(" | "); //display the divider between options
+
+        if (option.hover - 1 == i && option.selected - 1 == i)
+        {
+            styleText(BOLD, TRUE);
+            styleText(UNDERLINE, TRUE);
+            printf("%s", option.names[i]);
+            styleText(UNDERLINE, FALSE);
+            styleText(BOLD, FALSE);
+        }
+        else if (option.hover - 1 == i)
+        {
+            styleText(UNDERLINE, TRUE);
+            printf("%s", option.names[i]);
+            styleText(UNDERLINE, FALSE);
+        }
+        else if (option.selected - 1 == i)
+        {
+            styleText(BOLD, TRUE);
+            printf("%s", option.names[i]);
+            styleText(BOLD, FALSE);
+        }
+        else 
+            printf("%s", option.names[i]);
+    }
+}
+
+
+
+/******************************************************************************
+    This function lets the user navigate through the different options using
+        the arrow keys.
+******************************************************************************/
+void
+userNavigation(userNav *pos,
+               options menu[MAX_ROW_OPTIONS])
+{
+    int input;
+    bool end = FALSE;
+
+    cursorVisibility(FALSE);
+    printf("\33[1G");
+    displayAllOptions(menu, pos->rowMax);
+
+    do
+    {
+        input = getch(); //get the key press
+
+        if (input == 0 || input == 224) //if the input are the arrow keys
+        {
+            switch (getch()) //get the input again
+            {
+                case UP_ARROW:
+                    if (pos->row > 0)
+                    {
+                        //remove the hover & underline
+                        menu[pos->row].hover = 0;
+
+                        //move the cursor to the start of the previous set of options
+                        moveCursorX(1);
+
+                        //display the original options to remove the underline
+                        displayOptions(menu[pos->row]);
+
+                        //move the cursor at the desired y location
+                        moveCursor(0, menu[pos->row].x - menu[pos->row - 1].x - 1);
+                        moveCursor(0, 1);
+
+                        //update the positions
+                        pos->col = 0;
+                        pos->row--;
+
+                        //put the hover at the starting option of the next set of options
+                        menu[pos->row].hover = 1;
+                    }
+                    break;
+                case DOWN_ARROW:
+                    if (pos->row < pos->rowMax)
+                    {
+                        //remove the hover & underline
+                        menu[pos->row].hover = 0;
+
+                        //move the cursor to the next set of options
+                        moveCursorX(1);
+
+                        //display the original options to remove the underline
+                        displayOptions(menu[pos->row]);
+
+                        //move the cursor at the start of the next line
+                        moveCursor(0, (menu[pos->row + 1].x - menu[pos->row].x) * -1);
+                        moveCursorX(1);
+
+                        //update the positions
+                        pos->col = 0;
+                        pos->row++;
+
+                        //put the hover at the starting option of the next set of options
+                        menu[pos->row].hover = 1;
+                    }
+                    break;
+                case RIGHT_ARROW:
+                    //update the position. Wrap to the start if it goes beyond the max options
+                    pos->col = (pos->col + 1) % menu[pos->row].nOptions;
+
+                    //update the hover position
+                    menu[pos->row].hover = pos->col + 1;
+                    break;
+                case LEFT_ARROW:
+                    //update the position
+                    if (pos->col == 0) //wrap to the last option if needed
+                        pos->col = menu[pos->row].nOptions - 1;
+                    else
+                        pos->col--;
+
+                    //update the hover position
+                    menu[pos->row].hover = pos->col + 1;
+                    break;
+            }
+
+            moveCursorX(1);
+            displayOptions(menu[pos->row]);
+        }
+        else if (input == ENTER)
+            if (pos->col + 1 != menu[pos->row].selected) //if the option has not been selected previously
+            {
+                //set selected to the chosen option
+                menu[pos->row].selected = pos->col + 1;
+
+                //initialize the next set of options depending on the option selected
+                initializeOptions(pos, menu);
+
+                //remove the hover & underline
+                menu[pos->row].hover = 0;
+
+                //update the positions
+                pos->row++;
+                pos->col = 0;
+
+                //terminate the loop
+                end = TRUE;
+            }
+    } while (!end);
+}
+
+
+
+void
+initializeOptions(userNav *pos,
+                  options rowOptions[MAX_ROW_OPTIONS])
+{
+    if (rowOptions[0].selected == UPDATE_RECIPE_BOX)
+    {
+        //printf("ADD CALORIE INFO | VIEW CALORIE CHART | SAVE CALORIES | LOAD CALORIES | ADD RECIPE | MODIFY RECIPE | DELETE RECIPE | LIST RECIPES | SCAN RECIPES | SEARCH RECIPE | EXPORT RECIPES | IMPORT RECIPES");
+        pos->rowMax = 1;
+        strcpy(rowOptions[1].names[0], "ADD CALORIE INFO");
+        strcpy(rowOptions[1].names[1], "VIEW CALORIE CHART");
+        strcpy(rowOptions[1].names[2], "SAVE CALORIES");
+        strcpy(rowOptions[1].names[3], "LOAD CALORIES");
+        strcpy(rowOptions[1].names[4], "ADD RECIPE");
+        strcpy(rowOptions[1].names[5], "MODIFY RECIPE");
+        strcpy(rowOptions[1].names[6], "DELETE RECIPE");
+        strcpy(rowOptions[1].names[7], "LIST RECIPES");
+        strcpy(rowOptions[1].names[8], "SCAN RECIPES");
+        strcpy(rowOptions[1].names[9], "SEARCH RECIPE");
+        strcpy(rowOptions[1].names[10], "EXPORT RECIPES");
+        strcpy(rowOptions[1].names[11], "IMPORT RECIPES");
+        rowOptions[1].nOptions = 12;
+        rowOptions[1].hover = 1;
+        rowOptions[1].selected = 0;
+        rowOptions[1].x = 2;
+    }
+
+    else if (rowOptions[0].selected == ACCESS_RECIPE_BOX)
+    {
+
+    }
+
+    else if (rowOptions[0].selected == ACCOUNT)
+    {
+        printf("yayyy");
+    }
+}
+
+
+
+
+
 /******************************************************************************
 *                                                                             *
 *                             Display Functions                               *
@@ -730,32 +958,6 @@ nextScreen()
     printf("%s", temp);
 
     printf("\33[%dF", MAX_SCREEN_HEIGHT); //move the cursor to the top of the next screen
-}
-
-
-
-/*
-    This function displays the option text with text modifications if the cursor/pointer is on
-        that option, else it just displays the bare text.
-    Preconditions:
-        1. index and selected are non negative integers.
-    
-    @param options a 2D char array containing the strings for the options.
-    @param index refers to the string to be displayed.
-    @param selected refers to what index the cursor is currently at.
-*/
-void
-displayOption(string20 options,
-              int index,
-              int selected)
-{
-    if (index == selected)
-    {
-        printf("> \33[4m");
-        //changeColor(1, 46, 111, 64);
-    }
-    printf("%s", options);
-    printf("\33[0m");
 }
 
 
