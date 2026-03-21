@@ -27,8 +27,7 @@
 #define MAX_INGREDIENTS 50
 #define MAX_FOOD_ITEMS 20
 #define MAX_INSTRUCTIONS 15
-#define MAX_COL_OPTIONS 12
-#define MAX_ROW_OPTIONS 20
+#define MAX_OPTIONS 20
 
 
 
@@ -38,6 +37,7 @@
 
 typedef char string15[16];
 typedef char string20[21];
+typedef char string50[51];
 typedef char string70[71];
 
 
@@ -178,8 +178,19 @@ typedef struct
 } recipeType;
 
 
-typedef recipeType recipeList[MAX_RECIPES];
-typedef ingredientType calorieList[MAX_INGREDIENTS];
+typedef struct
+{
+    recipeType  recipeList[MAX_RECIPES];
+    int         nRecipes;
+} recipeList;
+
+
+typedef struct 
+{
+    ingredientType  calorieList[MAX_INGREDIENTS];
+    int             nElem;
+} calorieList;
+
 
 
 typedef struct
@@ -192,21 +203,10 @@ typedef struct
 
 typedef struct
 {
-    int    row;
-    int    col;
-    int    rowMax;
-} userNav;
-
-
-typedef struct
-{
-    int         x;
-    int         row;
-    string20    names[MAX_COL_OPTIONS];
-    int         nOptions;
-    int         hover;
-    int         selected;
-} options;
+    string50 prompt;
+    string50 options[MAX_OPTIONS];
+    int nOptions;
+} optionType;
 
 
 
@@ -251,9 +251,6 @@ bool isFileNameValid(char fileName[], char fileExt[]);
 char * convertString(char str[], convertStr type);
 int absStrCmp(char str1[], char str2[]);
 void sortStrArray(sortType type, int nElem, int maxLen, char arr[nElem][maxLen]);
-void displayOptions(options option);
-void userNavigation(userNav *pos, options menu[MAX_ROW_OPTIONS]);
-void initializeOptions(userNav *pos, options rowOptions[MAX_ROW_OPTIONS]);
 
 
 

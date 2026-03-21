@@ -39,32 +39,13 @@ void getFullscreenDimensions() {
 int
 main()
 {
-    userNav pos;
-    options rowOptions[MAX_ROW_OPTIONS];
+    printf("Screen: UPDATE RECIPE BOX -> MODIFY RECIPE -> DELETE\n\n");
+    printf("Options:\n");
+    printf("1. step1.\n\n");
+    printf("Input: \n\n");
 
-    pos.row = 0;
-    pos.col = 0;
-    pos.rowMax = 0;
+    displayLoadingBar(77.75);
 
-    strcpy(rowOptions[0].names[0], "HOME");
-    strcpy(rowOptions[0].names[1], "UPDATE");
-    strcpy(rowOptions[0].names[2], "ACCESS");
-    strcpy(rowOptions[0].names[3], "ACCOUNT");
-    strcpy(rowOptions[0].names[4], "EXIT");
-    rowOptions[0].nOptions = 5;
-    rowOptions[0].hover = 1;
-    rowOptions[0].selected = 0;
-    rowOptions[0].x = 0;
-
-    nextScreen();
-    userNavigation(&pos, rowOptions);
-    nextScreen();
-    userNavigation(&pos, rowOptions);
-
-
-    printf("\nselected: %d", rowOptions[0].selected);
-    printf("\nselected: %d", rowOptions[1].selected);
-    printf("\nx: %d", pos.col);
 
     //testAllFunctions();
 

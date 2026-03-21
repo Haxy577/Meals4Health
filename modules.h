@@ -706,227 +706,205 @@ sortStrArray(sortType type,
 
 
 
-
-void
-displayAllOptions(options option[MAX_ROW_OPTIONS],
-                  int lastRow)
-{
-    int i;
-    
-    for (i = 0; i <= lastRow; i++)
-    {
-        if (i > 0)
-        {
-            moveCursorX(1);
-            moveCursor(0, (option[i].x - option[i - 1].x) * -1);
-        }
-
-        displayOptions(option[i]);
-    }
-}
-
-
 /******************************************************************************
-    This function displays the available options in a row.
+    This function extracts a string from a file until it hits a new line
+        character.
     Preconditions:
-        1. The structure is initialized.
+        1. This function is called after the desired file was opened.
+        2. The parameter maxLen is a positive integer.
 
-    @param option is the structure containing the options to be displayed.
+    @param fp is the file pointer.
+    @param maxChar is the maximum characters the character array can store not
+        including the null byte.
+    @param arr is the array where the extracted string is to be stored.
+    @return a copy of the extracted string.
 ******************************************************************************/
-void
-displayOptions(options option)
+char *
+getFileStr(FILE *fp,
+          int maxChar,
+          char arr[maxChar + 1])
 {
-    int i;
-    
-    for (i = 0; i < option.nOptions; i++)
-    {
-        if (i == 0)
-            printf(" ");
-        else
-            printf(" | "); //display the divider between options
+    int i = 0;
+    char ch;
+    char str[maxChar + 1];
 
-        if (option.hover - 1 == i && option.selected - 1 == i)
-        {
-            styleText(BOLD, TRUE);
-            styleText(UNDERLINE, TRUE);
-            printf("%s", option.names[i]);
-            styleText(UNDERLINE, FALSE);
-            styleText(BOLD, FALSE);
-        }
-        else if (option.hover - 1 == i)
-        {
-            styleText(UNDERLINE, TRUE);
-            printf("%s", option.names[i]);
-            styleText(UNDERLINE, FALSE);
-        }
-        else if (option.selected - 1 == i)
-        {
-            styleText(BOLD, TRUE);
-            printf("%s", option.names[i]);
-            styleText(BOLD, FALSE);
-        }
-        else 
-            printf("%s", option.names[i]);
-    }
+    while ((ch = fscanf(fp, "%c", &ch)) == 1 && ch != '\n' && i <= maxChar)
+        str[i++] = ch;
+
+    str[i] = '\0';
+
+    strcpy(arr, str);
+
+    return str;
 }
 
 
 
 /******************************************************************************
-    This function lets the user navigate through the different options using
-        the arrow keys.
+    This function extracts a string from a file until it hits a new line
+        character.
+    Preconditions:
+        1. This function is called after the desired file was opened.
+        2. The parameter maxLen is a positive integer.
+
+    @param fp is the file pointer.
+    @param maxChar is the maximum characters the character array can store not
+        including the null byte.
+    @param arr is the array where the extracted string is to be stored.
+    @return a copy of the extracted string.
 ******************************************************************************/
 void
-userNavigation(userNav *pos,
-               options menu[MAX_ROW_OPTIONS])
+addIngredient(recipeType *recipe,
+              ingredientType ingredient)
 {
-    int input;
-    bool end = FALSE;
-
-    cursorVisibility(FALSE);
-    printf("\33[1G");
-    displayAllOptions(menu, pos->rowMax);
-
-    do
-    {
-        input = getch(); //get the key press
-
-        if (input == 0 || input == 224) //if the input are the arrow keys
-        {
-            switch (getch()) //get the input again
-            {
-                case UP_ARROW:
-                    if (pos->row > 0)
-                    {
-                        //remove the hover & underline
-                        menu[pos->row].hover = 0;
-
-                        //move the cursor to the start of the previous set of options
-                        moveCursorX(1);
-
-                        //display the original options to remove the underline
-                        displayOptions(menu[pos->row]);
-
-                        //move the cursor at the desired y location
-                        moveCursor(0, menu[pos->row].x - menu[pos->row - 1].x - 1);
-                        moveCursor(0, 1);
-
-                        //update the positions
-                        pos->col = 0;
-                        pos->row--;
-
-                        //put the hover at the starting option of the next set of options
-                        menu[pos->row].hover = 1;
-                    }
-                    break;
-                case DOWN_ARROW:
-                    if (pos->row < pos->rowMax)
-                    {
-                        //remove the hover & underline
-                        menu[pos->row].hover = 0;
-
-                        //move the cursor to the next set of options
-                        moveCursorX(1);
-
-                        //display the original options to remove the underline
-                        displayOptions(menu[pos->row]);
-
-                        //move the cursor at the start of the next line
-                        moveCursor(0, (menu[pos->row + 1].x - menu[pos->row].x) * -1);
-                        moveCursorX(1);
-
-                        //update the positions
-                        pos->col = 0;
-                        pos->row++;
-
-                        //put the hover at the starting option of the next set of options
-                        menu[pos->row].hover = 1;
-                    }
-                    break;
-                case RIGHT_ARROW:
-                    //update the position. Wrap to the start if it goes beyond the max options
-                    pos->col = (pos->col + 1) % menu[pos->row].nOptions;
-
-                    //update the hover position
-                    menu[pos->row].hover = pos->col + 1;
-                    break;
-                case LEFT_ARROW:
-                    //update the position
-                    if (pos->col == 0) //wrap to the last option if needed
-                        pos->col = menu[pos->row].nOptions - 1;
-                    else
-                        pos->col--;
-
-                    //update the hover position
-                    menu[pos->row].hover = pos->col + 1;
-                    break;
-            }
-
-            moveCursorX(1);
-            displayOptions(menu[pos->row]);
-        }
-        else if (input == ENTER)
-            if (pos->col + 1 != menu[pos->row].selected) //if the option has not been selected previously
-            {
-                //set selected to the chosen option
-                menu[pos->row].selected = pos->col + 1;
-
-                //initialize the next set of options depending on the option selected
-                initializeOptions(pos, menu);
-
-                //remove the hover & underline
-                menu[pos->row].hover = 0;
-
-                //update the positions
-                pos->row++;
-                pos->col = 0;
-
-                //terminate the loop
-                end = TRUE;
-            }
-    } while (!end);
+    if (recipe->nIngredients < MAX_RECIPE_INGREDIENTS)
+        recipe->ingredients[recipe->nIngredients++] = ingredient;
 }
 
 
 
 void
-initializeOptions(userNav *pos,
-                  options rowOptions[MAX_ROW_OPTIONS])
+removeIngredient(recipeType *recipe,
+                 int index)
 {
-    if (rowOptions[0].selected == UPDATE_RECIPE_BOX)
-    {
-        //printf("ADD CALORIE INFO | VIEW CALORIE CHART | SAVE CALORIES | LOAD CALORIES | ADD RECIPE | MODIFY RECIPE | DELETE RECIPE | LIST RECIPES | SCAN RECIPES | SEARCH RECIPE | EXPORT RECIPES | IMPORT RECIPES");
-        pos->rowMax = 1;
-        strcpy(rowOptions[1].names[0], "ADD CALORIE INFO");
-        strcpy(rowOptions[1].names[1], "VIEW CALORIE CHART");
-        strcpy(rowOptions[1].names[2], "SAVE CALORIES");
-        strcpy(rowOptions[1].names[3], "LOAD CALORIES");
-        strcpy(rowOptions[1].names[4], "ADD RECIPE");
-        strcpy(rowOptions[1].names[5], "MODIFY RECIPE");
-        strcpy(rowOptions[1].names[6], "DELETE RECIPE");
-        strcpy(rowOptions[1].names[7], "LIST RECIPES");
-        strcpy(rowOptions[1].names[8], "SCAN RECIPES");
-        strcpy(rowOptions[1].names[9], "SEARCH RECIPE");
-        strcpy(rowOptions[1].names[10], "EXPORT RECIPES");
-        strcpy(rowOptions[1].names[11], "IMPORT RECIPES");
-        rowOptions[1].nOptions = 12;
-        rowOptions[1].hover = 1;
-        rowOptions[1].selected = 0;
-        rowOptions[1].x = 2;
-    }
+    int i;
 
-    else if (rowOptions[0].selected == ACCESS_RECIPE_BOX)
-    {
+    if (isInRange(index, 0, --recipe->nIngredients))
+        for (i = index; i < recipe->nIngredients; i++)
+            recipe->ingredients[i] = recipe->ingredients[i + 1];
+}
 
-    }
 
-    else if (rowOptions[0].selected == ACCOUNT)
+
+void
+addInstruction(recipeType *recipe,
+               string70 instruction)
+{
+    if (recipe->nInstructions < MAX_INSTRUCTIONS)
+        strcpy(recipe->instructions[recipe->nInstructions++], instruction);
+}
+
+
+
+void
+removeInstructions(recipeType *recipe,
+                 int index)
+{
+    int i;
+
+    if (isInRange(index, 0, --recipe->nInstructions))
+        for (i = index; i < recipe->nIngredients; i++)
+            strcpy(recipe->instructions[i], recipe->instructions[i + 1]);
+}
+
+
+
+void
+saveCalorieInfo(string20 fileName,
+                calorieList arr)
+{
+    FILE *fp;
+    int i;
+
+    if (arr.nElem > 0 && (fp = fopen(fileName, "wt")) != NULL)
     {
-        printf("yayyy");
+        for (i = 0; i < arr.nElem; i++)
+        {
+            fprintf("%s\n%.2f %s %.2f\n\n", arr.calorieList[i].item,
+                                            arr.calorieList[i].quantity,
+                                            arr.calorieList[i].unit,
+                                            arr.calorieList[i].calorie);
+        }
+        fclose(fp);
     }
 }
 
 
+void
+loadCalorieInfo(string20 fileName,
+                calorieList *arr)
+{
+    FILE *fp;
+    int i;
+    int j;
+    char dump;
+    int input;
+
+    enum options
+    {
+        OVERWRITE = 1,
+        KEEP
+    };
+
+    if (arr->nElem < MAX_INGREDIENTS && (fp = fopen(fileName, "rt")) != NULL)
+    {
+        i = arr->nElem;
+
+        while (i++ < MAX_INGREDIENTS && strlen(getFileStr(fp, 20, arr->calorieList[i].item)) > 0)
+        {
+            //store
+            fscanf("%f%c", &arr->calorieList->quantity, &dump);
+            arr->calorieList[i].unit[strlen(getFileStr(fp, 15, arr->calorieList[i].unit)) - 1] = '\0';
+            fscanf("%f%c%c", &arr->calorieList->calorie, &dump, &dump);
+
+            //search for duplicates
+            if (arr->nElem != 0) //if nothing is stored, dont search
+                for (j = 0; j < arr->nElem; j++)
+                    if (absStrCmp(arr->calorieList[i].item, arr->calorieList[j].item))
+                        {
+                            printf("%s already exists!\n");
+                            printf("1. Overwrite the previous entry.\n");
+                            printf("2. Keep the original entry.\n");
+                            do
+                            {
+                                printf("Input: ");
+                                scanf("%d", &input);
+                            } while (isInRange(input, 1, 2) == FALSE);
+
+                            if (input == OVERWRITE)
+                                arr->calorieList[j] = arr->calorieList[i--];
+                        }
+        }
+        fclose(fp);
+    }
+}
+
+
+
+void
+displayLoadingBar(float percentage)
+{
+    char loadingBar[113];
+    int i;
+
+    strcpy(loadingBar, "");
+
+    loadingBar[0] = '[';
+
+    for (i = 1; i <= 100; i++)
+        if (isInRange(i, 1, (int) percentage))
+            loadingBar[i] = '#';
+        else
+            loadingBar[i] = '-';
+
+    loadingBar[101] = '\0';
+
+    if (percentage == 100.00)
+        strcat(loadingBar, "] (100%)");
+    else
+    {
+        strcat(loadingBar, "] (");
+        loadingBar[104] = '0' + (int) percentage / 10;
+        loadingBar[105] = '0' + (int) percentage % 10;
+        loadingBar[106] = '.';
+        loadingBar[107] = '0' + (int) (percentage * 10) % 10;
+        loadingBar[108] = '0' + (int) (percentage * 100) % 10;
+        loadingBar[109] = '\0';
+        strcat(loadingBar, "%)");
+    }
+
+    printf("%s\n", loadingBar);
+}
 
 
 
