@@ -1,0 +1,47 @@
+Recipe 1
+5 starter
+Ingredients 3
+1.00 unit1 ing1
+2.00 unit2 ing2
+3.00 unit3 ing3
+Steps 4
+step1
+step2
+step3
+step3
+
+Recipe 2
+5 main
+Ingredients 3
+1.00 unit1 ing1
+2.00 unit2 ing2
+3.00 unit3 ing3
+Steps 4
+step1
+step2
+step3
+step3
+
+Recipe 3
+5 dessert
+Ingredients 3
+1.00 unit1 ing1
+2.00 unit2 ing2
+3.00 unit3 ing3
+Steps 4
+step1
+step2
+step3
+step3
+
+Recipe 4
+5 starter
+Ingredients 3
+1.00 unit1 ing1
+2.00 unit2 ing2
+3.00 unit3 ing3
+Steps 4
+step1
+step2
+step3
+step3

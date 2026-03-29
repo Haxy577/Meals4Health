@@ -23,6 +23,10 @@ testAllFunctions()
     testIsFileNameValid();
     testConvertString();
     testAbsStrCmp();
+    testSortStrArray();
+    testReverseString();
+    testIntToString();
+    testStringSearch();
 }
 
 
@@ -30,31 +34,20 @@ testAllFunctions()
 /******************************************************************************
     This function displays the details of the test case and its result.
 
-    @param testNum the test case number.
-    @param description the description of the test case.
-    @param input what was inputted in the function parameters.
-    @param expected the expected output of the function.
-    @param actual the actual output of the function.
-    @param result whether the expected matches the actual. Prints "PASS" if
-        it matches, "FAIL" if it does not.
+    @param test contains the details to be displayed.
 ******************************************************************************/
 void
-displayTestResult(int testNum,
-              string70 description,
-              string70 input,
-              string70 expected,
-              string70 actual,
-              bool result)
+displayTestResult(testType test)
 {
-    styleText(BOLD, TRUE);
-    printf("Test case #%d\n", testNum);
-    styleText(BOLD, FALSE);
-    printf("Description: %s\n", description);
-    printf("Input: %s\n", input);
-    printf("Expected: %s\n", expected);
-    printf("Actual: %s\n", actual);
+    styleText(BOLD, true);
+    printf("Test case #%d\n", test.testNum);
+    styleText(BOLD, false);
+    printf("Description: %s\n", test.description);
+    printf("Input: %s\n", test.input);
+    printf("Expected: %s\n", test.expected);
+    printf("Actual: %s\n", test.actual);
     printf("Result: ");
-    if (result == TRUE)
+    if (test.result == true)
     {
         paintText(FOREGROUND, 0 ,255, 0);
         printf("PASS\n\n");
@@ -80,73 +73,76 @@ displayTestResult(int testNum,
 void
 testIsInRange()
 {
-    int testNum = 0;
-    string70 expected;
-    string70 actual;
+    testType test;
+    test.testNum = 0;
 
-    styleText(BOLD, TRUE);
+    styleText(BOLD, true);
     printf("\nTesting \"isInRange\" function\n\n");
-    styleText(BOLD, FALSE);
+    styleText(BOLD, false);
+
 
     //Test case 1
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The value is outside the given range.");
+    strcpy(test.input, "The value is outside the given range.");
+    strcpy(test.expected, "false");
 
     if (isInRange(1, 2, 3))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The value is outside the given range.",
-                      "Value: 1 ; Min: 2 ; Max: 3",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
     
+
     //Test case 2
-    strcpy(expected, "TRUE");
+    test.testNum++;
+    strcpy(test.description, "The value is within range.");
+    strcpy(test.input, "Value: 2 ; Min: 1 ; Max: 3");
+    strcpy(test.expected, "true");
 
     if (isInRange(2, 1, 3))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The value is within range.",
-                      "Value: 2 ; Min: 1 ; Max: 3",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 3
-    strcpy(expected, "TRUE");
+    test.testNum++;
+    strcpy(test.description, "The value, min, and max are equal.");
+    strcpy(test.input, "Value: 1 ; Min: 1 ; Max: 1");
+    strcpy(test.expected, "true");
 
     if (isInRange(1, 1, 1))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The value, min, and max are equal.",
-                      "Value: 1 ; Min: 1 ; Max: 1",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
     
+
     //Test case 4
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The value is greater than INT_MAX.");
+    strcpy(test.input, "Value: INT_MAX + 1 ; Min: INT_MIN ; Max: INT_MAX");
+    strcpy(test.expected, "false");
 
     if(isInRange((long long) INT_MAX + 1, INT_MIN, INT_MAX))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-        displayTestResult(++testNum,
-                          "The value is greater than INT_MAX.",
-                          "Value: INT_MAX + 1 ; Min: INT_MIN ; Max: INT_MAX",
-                          expected,
-                          actual,
-                          strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
 }
 
 
@@ -162,73 +158,76 @@ testIsInRange()
 void
 testFloatInRange()
 {
-    int testNum = 0;
-    string70 expected;
-    string70 actual;
+    testType test;
+    test.testNum = 0;
 
-    styleText(BOLD, TRUE);
+    styleText(BOLD, true);
     printf("\nTesting \"FloatInRange\" function\n\n");
-    styleText(BOLD, FALSE);
+    styleText(BOLD, false);
+
 
     //Test case 1
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The value is outside the given range.");
+    strcpy(test.input, "Value: 1.0 ; Min: 2.0 ; Max: 3.0");
+    strcpy(test.expected, "false");
 
     if (floatInRange(1.0, 2.0, 3.0))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The value is outside the given range.",
-                      "Value: 1.0 ; Min: 2.0 ; Max: 3.0",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
     
+
     //Test case 2
-    strcpy(expected, "TRUE");
+    test.testNum++;
+    strcpy(test.description, "The value is within range.");
+    strcpy(test.input, "Value: 2.0 ; Min: 1.0 ; Max: 3.0");
+    strcpy(test.expected, "true");
 
     if (isInRange(2.0, 1.0, 3.0))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The value is within range.",
-                      "Value: 2.0 ; Min: 1.0 ; Max: 3.0",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 3
-    strcpy(expected, "TRUE");
+    test.testNum++;
+    strcpy(test.description, "The value, min, and max are equal.");
+    strcpy(test.input, "Value: 1.0 ; Min: 1.0 ; Max: 1.0");
+    strcpy(test.expected, "true");
 
     if (floatInRange(1.0, 1.0, 1.0))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The value, min, and max are equal.",
-                      "Value: 1.0 ; Min: 1.0 ; Max: 1.0",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
     
+
     //Test case 4
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The value is greater than FLT_MAX.");
+    strcpy(test.input, "Value: FLT_MAX * 2.0 ; Min: FLT_MIN ; Max: FLT_MAX");
+    strcpy(test.expected, "false");
 
     if(floatInRange((double) FLT_MAX * 2.0, FLT_MIN, FLT_MAX))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-        displayTestResult(++testNum,
-                          "The value is greater than INT_MAX.",
-                          "Value: FLT_MAX * 2.0 ; Min: FLT_MIN ; Max: FLT_MAX",
-                          expected,
-                          actual,
-                          strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
 }
 
 
@@ -243,49 +242,52 @@ testFloatInRange()
 void
 testStringToInt()
 {
-    int testNum = 0;
-    string70 expected;
-    string70 actual;
+    testType test;
+    test.testNum = 0;
 
-    styleText(BOLD, TRUE);
+
+    styleText(BOLD, true);
     printf("\nTesting \"stringToInt\" function\n\n");
-    styleText(BOLD, FALSE);
+    styleText(BOLD, false);
+
 
     //Test case 1
-    strcpy(expected, "0");
+    test.testNum++;
+    strcpy(test.description, "The string is empty.");
+    strcpy(test.input, "\"\"");
+    strcpy(test.expected, "0");
 
-    snprintf(actual, 70, "%d", stringToInt("")); //print the number straight to the array
+    snprintf(test.actual, 70, "%d", stringToInt("")); //print the number straight to the array
 
-    displayTestResult(++testNum,
-                      "The string is empty.",
-                      "\"\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 2
-    strcpy(expected, "1");
+    test.testNum++;
+    strcpy(test.description, "The string contains a positive number.");
+    strcpy(test.input, "\"1\"");
+    strcpy(test.expected, "1");
 
-    snprintf(actual, 70, "%d", stringToInt("1"));
+    snprintf(test.actual, 70, "%d", stringToInt("1"));
 
-    displayTestResult(++testNum,
-                      "The string contains a positive number.",
-                      "\"1\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
     
+
     //Test case 3
-    strcpy(expected, "-1");
+    test.testNum++;
+    strcpy(test.description, "The string contains a negative number.");
+    strcpy(test.input, "\"-1\"");
+    strcpy(test.expected, "-1");
 
-    snprintf(actual, 70, "%d", stringToInt("-1"));
+    snprintf(test.actual, 70, "%d", stringToInt("-1"));
 
-    displayTestResult(++testNum,
-                      "The string contains a negative number.",
-                      "\"-1\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
 }
 
 
@@ -302,73 +304,78 @@ testStringToInt()
 void
 testStringToFloat()
 {
-    int testNum = 0;
-    string70 expected;
-    string70 actual;
+    testType test;
+    test.testNum = 0;
 
-    styleText(BOLD, TRUE);
+
+    styleText(BOLD, true);
     printf("\nTesting \"stringToFloat\" function\n\n");
-    styleText(BOLD, FALSE);
+    styleText(BOLD, false);
+
 
     //Test case 1
-    strcpy(expected, "0.00");
+    test.testNum++;
+    strcpy(test.description, "The string is empty.");
+    strcpy(test.input, "\"\"");
+    strcpy(test.expected, "0.00");
 
-    snprintf(actual, 70, "%.2f", stringToFloat("")); //print the number straight to the array
+    snprintf(test.actual, 70, "%.2f", stringToFloat("")); //print the number straight to the array
 
-    displayTestResult(++testNum,
-                      "The string is empty.",
-                      "\"\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 2
-    strcpy(expected, "1.20");
+    test.testNum++;
+    strcpy(test.description, "The string contains a positive number.");
+    strcpy(test.input, "\"1.2\"");
+    strcpy(test.expected, "1.20");
 
-    snprintf(actual, 70, "%.2f", stringToFloat("1.2"));
+    snprintf(test.actual, 70, "%.2f", stringToFloat("1.2"));
 
-    displayTestResult(++testNum,
-                      "The string contains a positive number.",
-                      "\"1.2\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
     
+
     //Test case 3
-    strcpy(expected, "-1.20");
+    test.testNum++;
+    strcpy(test.description, "The string contains a negative number.");
+    strcpy(test.input, "\"-1.2\"");
+    strcpy(test.expected, "-1.20");
 
-    snprintf(actual, 70, "%.2f", stringToFloat("-1.2"));
+    snprintf(test.actual, 70, "%.2f", stringToFloat("-1.2"));
 
-    displayTestResult(++testNum,
-                      "The string contains a negative number.",
-                      "\"-1.2\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 4
-    strcpy(expected, "0.00");
+    test.testNum++;
+    strcpy(test.description, "The string only contains the dot '.' character.");
+    strcpy(test.input, "\".\"");
+    strcpy(test.expected, "0.00");
 
-    snprintf(actual, 70, "%.2f", stringToFloat("."));
+    snprintf(test.actual, 70, "%.2f", stringToFloat("."));
 
-    displayTestResult(++testNum,
-                      "The string only contains the dot '.' character.",
-                      "\".\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 5
-    strcpy(expected, "1.20");
+    test.testNum++;
+    strcpy(test.description, "The string has multiple instances of the character dot '.'.");
+    strcpy(test.input, "\"1.2.3\"");
+    strcpy(test.expected, "1.20");
 
-    snprintf(actual, 70, "%.2f", stringToFloat("1.2.3"));
+    snprintf(test.actual, 70, "%.2f", stringToFloat("1.2.3"));
 
-    displayTestResult(++testNum,
-                      "The string has multiple instances of the character dot '.'.",
-                      "\"1.2.3\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
 }
 
 
@@ -385,88 +392,93 @@ testStringToFloat()
 void
 testIsFileNameValid()
 {
-    int testNum = 0;
-    string70 expected;
-    string70 actual;
+    testType test;
+    test.testNum = 0;
 
-    styleText(BOLD, TRUE);
+
+    styleText(BOLD, true);
     printf("\nTesting \"isFileNameValid\" function\n\n");
-    styleText(BOLD, FALSE);
+    styleText(BOLD, false);
+
 
     //Test case 1
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The string is empty.");
+    strcpy(test.input, "file = \"\" ; ext = \".txt\"");
+    strcpy(test.expected, "false");
 
     if (isFileNameValid("", ".txt"))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The string is empty.",
-                      "file = \"\" ; ext = \".txt\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
 
+    displayTestResult(test);
+
+    
     //Test case 2
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The string only contains the extention.");
+    strcpy(test.input, "file = \".txt\" ; ext = \".txt\"");
+    strcpy(test.expected, "false");
 
     if (isFileNameValid(".txt", ".txt"))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The string only contains the extention.",
-                      "file = \".txt\" ; ext = \".txt\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 3
-    strcpy(expected, "TRUE");
+    test.testNum++;
+    strcpy(test.description, "The string contains a valid file name.");
+    strcpy(test.input, "file = \"test.tXt\" ; ext = \".txt\"");
+    strcpy(test.expected, "true");
 
     if (isFileNameValid("text.tXt", ".txt"))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The string contains a valid file name.",
-                      "file = \"test.tXt\" ; ext = \".txt\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 4
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The string contains disallowed characters.");
+    strcpy(test.input, "file = \"he|lo.txt\" ; ext = \".txt\"");
+    strcpy(test.expected, "false");
 
     if (isFileNameValid("he|lo.txt", ".txt"))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The string contains disallowed characters.",
-                      "file = \"he|lo.txt\" ; ext = \".txt\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 5
-    strcpy(expected, "FALSE");
+    test.testNum++;
+    strcpy(test.description, "The string has an invalid file extention.");
+    strcpy(test.input, "file = \"hello.Ttx\" ; ext = \".txt\"");
+    strcpy(test.expected, "false");
 
     if (isFileNameValid("hello.Ttx", ".txt"))
-        strcpy(actual, "TRUE");
+        strcpy(test.actual, "true");
     else
-        strcpy(actual, "FALSE");
+        strcpy(test.actual, "false");
 
-    displayTestResult(++testNum,
-                      "The string has an invalid file extention.",
-                      "file = \"hello.Ttx\" ; ext = \".txt\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
 }
 
 
@@ -485,98 +497,109 @@ testIsFileNameValid()
 void
 testConvertString()
 {
-    int testNum = 0;
-    string70 input;
-    string70 expected;
-    string70 actual;
+    testType test;
+    test.testNum = 0;
+    string70 string;
 
-    styleText(BOLD, TRUE);
+
+    styleText(BOLD, true);
     printf("\nTesting \"convertString\" function\n\n");
-    styleText(BOLD, FALSE);
+    styleText(BOLD, false);
+
 
     //Test case 1
-    strcpy(expected, "");
-    strcpy(input, "");
-    strcpy(actual, convertString(input, UPPER_CASE));
+    test.testNum++;
+    strcpy(test.description, "The string is empty.");
+    strcpy(test.input, "str = \"\" ; type = UPPER_CASE");
+    strcpy(test.expected, "");
 
-    displayTestResult(++testNum,
-                      "The string is empty.",
-                      "str = \"\" ; type = UPPER_CASE",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    strcpy(string, "");
+    strcpy(test.actual, convertString(string, UPPER_CASE));
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 2
-    strcpy(expected, "ABCDE");
-    strcpy(input, "abcde");
-    strcpy(actual, convertString(input, UPPER_CASE));
+    test.testNum++;
+    strcpy(test.description, "Only lower case letters converted into upper case.");
+    strcpy(test.input, "str = \"abcde\" ; type = UPPER_CASE");
+    strcpy(test.expected, "ABCDE");
 
-    displayTestResult(++testNum,
-                      "Only lower case letters converted into upper case.",
-                      "str = \"abcde\" ; type = UPPER_CASE",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    strcpy(string, "abcde");
+    strcpy(test.actual, convertString(string, UPPER_CASE));
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 3
-    strcpy(expected, "ABCDE");
-    strcpy(input, "ABCDE");
-    strcpy(actual, convertString(input, UPPER_CASE));
+    test.testNum++;
+    strcpy(test.description, "Only upper case letters converted into upper case.");
+    strcpy(test.input, "str = \"ABCDE\" ; type = UPPER_CASE");
+    strcpy(test.expected, "ABCDE");
 
-    displayTestResult(++testNum,
-                      "Only upper case letters converted into upper case.",
-                      "str = \"ABCDE\" ; type = UPPER_CASE",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    strcpy(string, "ABCDE");
+    strcpy(test.actual, convertString(string, UPPER_CASE));
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 4
-    strcpy(expected, "ABCDE");
-    strcpy(input, "aBcDE");
-    strcpy(actual, convertString(input, UPPER_CASE));
+    test.testNum++;
+    strcpy(test.description, "Mix of both upper and lower case letters converted into upper case.");
+    strcpy(test.input, "str = \"aBcDE\" ; type = UPPER_CASE");
+    strcpy(test.expected, "ABCDE");
 
-    displayTestResult(++testNum,
-                      "Mix of both upper and lower case letters converted into upper case.",
-                      "str = \"aBcDE\" ; type = UPPER_CASE",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    strcpy(string, "aBcDE");
+    strcpy(test.actual, convertString(string, UPPER_CASE));
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 5
-    strcpy(expected, "abcde");
-    strcpy(input, "abcde");
-    strcpy(actual, convertString(input, LOWER_CASE));
+    test.testNum++;
+    strcpy(test.description, "Only lower case letters converted into lower case.");
+    strcpy(test.input, "str = \"abcde\" ; type = LOWER_CASE");
+    strcpy(test.expected, "abcde");
+    strcpy(string, "abcde");
+    strcpy(test.actual, convertString(string, LOWER_CASE));
 
-    displayTestResult(++testNum,
-                      "Only lower case letters converted into lower case.",
-                      "str = \"abcde\" ; type = LOWER_CASE",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 6
-    strcpy(expected, "abcde");
-    strcpy(input, "ABCDE");
-    strcpy(actual, convertString(input, LOWER_CASE));
+    test.testNum++;
+    strcpy(test.description, "Only upper case letters converted into lower case.");
+    strcpy(test.input, "str = \"ABCDE\" ; type = LOWER_CASE");
+    strcpy(test.expected, "abcde");
+    strcpy(string, "ABCDE");
+    strcpy(test.actual, convertString(string, LOWER_CASE));
 
-    displayTestResult(++testNum,
-                      "Only upper case letters converted into lower case.",
-                      "str = \"ABCDE\" ; type = LOWER_CASE",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
 
+    displayTestResult(test);
+
+    
     //Test case 7
-    strcpy(expected, "abcde");
-    strcpy(input, "aBcDE");
-    strcpy(actual, convertString(input, LOWER_CASE));
+    test.testNum++;
+    strcpy(test.description, "Mix of both upper and lower case letters converted into lower case.");
+    strcpy(test.input, "str = \"aBcDE\" ; type = LOWER_CASE");
+    strcpy(test.expected, "abcde");
+    strcpy(string, "aBcDE");
+    strcpy(test.actual, convertString(string, LOWER_CASE));
 
-    displayTestResult(++testNum,
-                      "Mix of both upper and lower case letters converted into lower case.",
-                      "str = \"aBcDE\" ; type = LOWER_CASE",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
 }
 
 
@@ -592,86 +615,416 @@ testConvertString()
 void
 testAbsStrCmp()
 {
-    int testNum = 0;
+    testType test;
+    test.testNum = 0;
     int result;
-    string70 expected;
-    string70 actual;
 
-    styleText(BOLD, TRUE);
+
+    styleText(BOLD, true);
     printf("\nTesting \"absStrCmp\" function\n\n");
-    styleText(BOLD, FALSE);
+    styleText(BOLD, false);
+
 
     //Test case 1
-    strcpy(expected, "EQUAL");
+    test.testNum++;
+    strcpy(test.description, "The string is empty.");
+    strcpy(test.input, "str1 = \"\" ; str2 = \"\"");
+    strcpy(test.expected, "EQUAL");
+
     result = absStrCmp("", "");
 
     if (result == 0)
-        strcpy(actual, "EQUAL");
+        strcpy(test.actual, "EQUAL");
     else if (result > 0)
-        strcpy(actual, "POSITIVE");
+        strcpy(test.actual, "POSITIVE");
     else if (result < 0)
-        strcpy(actual , "NEGATIVE");
+        strcpy(test.actual , "NEGATIVE");
 
-    displayTestResult(++testNum,
-                      "The string is empty.",
-                      "str1 = \"\" ; str2 = \"\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 2
-    strcpy(expected, "EQUAL");
+    test.testNum++;
+    strcpy(test.description, "The strings are equal to each other.");
+    strcpy(test.input, "str1 = \"aBc\" ; str2 = \"ABc\"");
+    strcpy(test.expected, "EQUAL");
+
     result = absStrCmp("aBc", "ABc");
 
     if (result == 0)
-        strcpy(actual, "EQUAL");
+        strcpy(test.actual, "EQUAL");
     else if (result > 0)
-        strcpy(actual, "POSITIVE");
+        strcpy(test.actual, "POSITIVE");
     else if (result < 0)
-        strcpy(actual , "NEGATIVE");
+        strcpy(test.actual , "NEGATIVE");
 
-    displayTestResult(++testNum,
-                      "The strings are equal to each other.",
-                      "str1 = \"aBc\" ; str2 = \"ABc\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 3
-    strcpy(expected, "POSITIVE");
+    test.testNum++;
+    strcpy(test.description, "Str1 is greater than str2.");
+    strcpy(test.input, "str1 = \"Def\" ; str2 = \"aBc\"");
+    strcpy(test.expected, "POSITIVE");
+
     result = absStrCmp("Def", "aBc");
 
     if (result == 0)
-        strcpy(actual, "EQUAL");
+        strcpy(test.actual, "EQUAL");
     else if (result > 0)
-        strcpy(actual, "POSITIVE");
+        strcpy(test.actual, "POSITIVE");
     else if (result < 0)
-        strcpy(actual , "NEGATIVE");
+        strcpy(test.actual , "NEGATIVE");
 
-    displayTestResult(++testNum,
-                      "Str1 is greater than str2.",
-                      "str1 = \"Def\" ; str2 = \"aBc\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
 
     //Test case 4
-    strcpy(expected, "NEGATIVE");
+    test.testNum++;
+    strcpy(test.description, "Str1 is less than str2.");
+    strcpy(test.input, "str1 = \"aBc\" ; str2 = \"Def\"");
+    strcpy(test.expected, "NEGATIVE");
+
     result = absStrCmp("aBc", "Def");
 
     if (result == 0)
-        strcpy(actual, "EQUAL");
+        strcpy(test.actual, "EQUAL");
     else if (result > 0)
-        strcpy(actual, "POSITIVE");
+        strcpy(test.actual, "POSITIVE");
     else if (result < 0)
-        strcpy(actual , "NEGATIVE");
+        strcpy(test.actual , "NEGATIVE");
 
-    displayTestResult(++testNum,
-                      "Str1 is less than str2.",
-                      "str1 = \"aBc\" ; str2 = \"Def\"",
-                      expected,
-                      actual,
-                      strcmp(expected, actual) == 0);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+}
+
+
+
+/******************************************************************************
+    This function tests whether the function "sortStrArray" works as expected.
+    Test Cases:
+        1. The arrays are empty.
+        2. Every string are equal to each other. Increasing order.
+        3. Contains unique strings in a increasing order. Increasing order.
+        4. Contains unique strings in a random order. Increasing order.
+        5. Contains unique strings in a decreasing order. Decreasing order.
+        6. Contains unique strings in a random order. Decreasing order.
+******************************************************************************/
+void
+testSortStrArray()
+{
+    testType test;
+    test.testNum = 0;
+    strcpy(test.actual, "");
+    char str[3][20];
+
+
+    styleText(BOLD, true);
+    printf("\nTesting \"sortStrArray\" function\n\n");
+    styleText(BOLD, false);
+
+
+    //Test case 1
+    test.testNum++;
+    strcpy(test.description, "The arrays are empty.");
+    strcpy(test.input, "arr[0] = \"\", arr[1] = \"\", arr[2] = \"\"");
+    strcpy(test.expected, ",,");
+
+    strcpy(str[0], "");
+    strcpy(str[1], "");
+    strcpy(str[2], "");
+
+    sortStrArray(INCREASING, 3, 20, str);
+
+    arrayToString(20, 3, str, test.actual);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 2
+    test.testNum++;
+    strcpy(test.description, "Every string are equal to each other. Increasing order.");
+    strcpy(test.input, "arr[0] = \"abc\", arr[1] = \"abc\", arr[2] = \"abc\" ; type = INCREASING");
+    strcpy(test.expected, "abc,abc,abc");
+
+    strcpy(str[0], "abc");
+    strcpy(str[1], "abc");
+    strcpy(str[2], "abc");
+
+    sortStrArray(INCREASING, 3, 20, str);
+
+    arrayToString(20, 3, str, test.actual);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 3
+    test.testNum++;
+    strcpy(test.description, "Contains unique strings in a increasing order. Increasing order.");
+    strcpy(test.input, "arr[0] = \"abc\", arr[1] = \"def\", arr[2] = \"ghi\" ; type = INCREASING");
+    strcpy(test.expected, "abc,def,ghi");
+
+    strcpy(str[0], "abc");
+    strcpy(str[1], "def");
+    strcpy(str[2], "ghi");
+
+    sortStrArray(INCREASING, 3, 20, str);
+
+    arrayToString(20, 3, str, test.actual);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 4
+    test.testNum++;
+    strcpy(test.description, "Contains unique strings in a random order. Increasing order.");
+    strcpy(test.input, "arr[0] = \"ghi\", arr[1] = \"abc\", arr[2] = \"def\" ; type = INCREASING");
+    strcpy(test.expected, "abc,def,ghi");
+
+    strcpy(str[0], "ghi");
+    strcpy(str[1], "abc");
+    strcpy(str[2], "def");
+
+    sortStrArray(INCREASING, 3, 20, str);
+
+    arrayToString(20, 3, str, test.actual);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 5
+    test.testNum++;
+    strcpy(test.description, "Contains unique strings in a decreasing order. Decreasing order.");
+    strcpy(test.input, "arr[0] = \"ghi\", arr[1] = \"def\", arr[2] = \"abc\" ; type = DECREASING");
+    strcpy(test.expected, "ghi,def,abc");
+
+    strcpy(str[0], "ghi");
+    strcpy(str[1], "def");
+    strcpy(str[2], "abc");
+
+    sortStrArray(DECREASING, 3, 20, str);
+
+    arrayToString(20, 3, str, test.actual);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 6
+    test.testNum++;
+    strcpy(test.description, "Contains unique strings in a random order. Decreasing order.");
+    strcpy(test.input, "arr[0] = \"ghi\", arr[1] = \"abc\", arr[2] = \"def\" ; type = DECREASING");
+    strcpy(test.expected, "ghi,def,abc");
+
+    strcpy(str[0], "ghi");
+    strcpy(str[1], "abc");
+    strcpy(str[2], "def");
+
+    sortStrArray(DECREASING, 3, 20, str);
+
+    arrayToString(20, 3, str, test.actual);
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+}
+
+
+
+/******************************************************************************
+    This function tests whether the function "reverseString" works as expected.
+    Test Cases:
+        1. The string is empty.
+        2. The string contains characters.
+******************************************************************************/
+void
+testReverseString()
+{
+    testType test;
+    test.testNum = 0;
+    string70 temp;
+
+
+    styleText(BOLD, true);
+    printf("\nTesting \"reverseString\" function\n\n");
+    styleText(BOLD, false);
+
+
+    //Test case 1
+    test.testNum++;
+    strcpy(test.description, "The string is empty.");
+    strcpy(test.input, "");
+    strcpy(test.expected, "");
+
+    strcpy(temp, "");
+    strcpy(test.actual, reverseString(temp));
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 2
+    test.testNum++;
+    strcpy(test.description, "The string contains characters.");
+    strcpy(test.input, "abc");
+    strcpy(test.expected, "cba");
+
+    strcpy(temp, "abc");
+    strcpy(test.actual, reverseString(temp));
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+}
+
+
+
+/******************************************************************************
+    This function tests whether the function "intToString" works as expected.
+    Test Cases:
+        1. The integer is zero.
+        2. The integer is positive.
+        3. The integer is negative.
+******************************************************************************/
+void
+testIntToString()
+{
+    testType test;
+    test.testNum = 0;
+    strcpy(test.actual, "");
+
+
+    styleText(BOLD, true);
+    printf("\nTesting \"intToString\" function\n\n");
+    styleText(BOLD, false);
+
+
+    //Test case 1
+    test.testNum++;
+    strcpy(test.description, "The integer is zero.");
+    strcpy(test.input, "0");
+    strcpy(test.expected, "0");
+
+    intToString(0, test.actual);
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 2
+    test.testNum++;
+    strcpy(test.description, "The integer is positive.");
+    strcpy(test.input, "1234567");
+    strcpy(test.expected, "1234567");
+
+    intToString(1234567, test.actual);
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 3
+    test.testNum++;
+    strcpy(test.description, "The integer is negative.");
+    strcpy(test.input, "-1234567");
+    strcpy(test.expected, "-1234567");
+
+    intToString(-1234567, test.actual);
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+}
+
+
+
+/******************************************************************************
+    This function tests whether the function "stringSearch" works as expected.
+    Test Cases:
+        1. The array contains the string.
+        2. The array does not contain the string.
+        3. There are multiple instances of the key.
+******************************************************************************/
+void
+testStringSearch()
+{
+    testType test;
+    test.testNum = 0;
+    strcpy(test.actual, "");
+    string20 arr[3];
+    int result;
+
+
+    styleText(BOLD, true);
+    printf("\nTesting \"stringSearch\" function\n\n");
+    styleText(BOLD, false);
+
+
+    //Test case 1
+    test.testNum++;
+    strcpy(test.description, "The array contains the string.");
+    strcpy(test.input, "arr[0] = \"abc\", arr[1] = \"def\", arr[2] = \"ghi\" ; key = \"def\"");
+    strcpy(test.expected, "1");
+
+    strcpy(arr[0], "abc");
+    strcpy(arr[1], "def");
+    strcpy(arr[2], "ghi");
+
+    result = stringSearch(3, 21, arr, "def");
+    intToString(result, test.actual);
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 2
+    test.testNum++;
+    strcpy(test.description, "The array does not contain the string.");
+    strcpy(test.input, "arr[0] = \"abc\", arr[1] = \"def\", arr[2] = \"ghi\" ; key = \"jkf\"");
+    strcpy(test.expected, "-1");
+
+    strcpy(arr[0], "abc");
+    strcpy(arr[1], "def");
+    strcpy(arr[2], "ghi");
+
+    result = stringSearch(3, 21, arr, "jkf");
+    intToString(result, test.actual);
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
+
+
+    //Test case 3
+    test.testNum++;
+    strcpy(test.description, "There are multiple instances of the key.");
+    strcpy(test.input, "arr[0] = \"abc\", arr[1] = \"abc\", arr[2] = \"abc\" ; key = \"abc\"");
+    strcpy(test.expected, "0");
+
+    strcpy(arr[0], "abc");
+    strcpy(arr[1], "abc");
+    strcpy(arr[2], "abc");
+
+    result = stringSearch(3, 21, arr, "abc");
+    intToString(result, test.actual);
+
+    test.result = (strcmp(test.expected, test.actual) == 0);
+
+    displayTestResult(test);
 }
 
 
